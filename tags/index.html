@@ -107,6 +107,30 @@
     
         <v-list id="sub-menu" class="font-weight-medium" dense>
             
+                
+                    <v-list-item href="/categories/linux/" link>
+                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="1" >
+                            <v-hover v-model="menuHover">
+                                <v-list-item-content>
+                                    <span>linux</span>                              
+                                </v-list-item-content>                           
+                            </v-hover>
+                        </v-badge>
+                    </v-list-item>
+                
+            
+                
+                    <v-list-item href="/categories/others/" link>
+                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="1" >
+                            <v-hover v-model="menuHover">
+                                <v-list-item-content>
+                                    <span>others</span>                              
+                                </v-list-item-content>                           
+                            </v-hover>
+                        </v-badge>
+                    </v-list-item>
+                
+            
         </v-list>    
     
 
@@ -132,8 +156,8 @@
                 </span>
                 <br>
             
-            <span>Theme: <a target="_blank" rel="noopener" href="https://github.com/kb1000fx/hexo-theme-insulin">Insulin</a></span><br>
-            <span>Powered by <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a></span><br>
+            <!-- <span>Theme: <a target="_blank" rel="noopener" href="https://github.com/kb1000fx/hexo-theme-insulin">Insulin</a></span><br> -->
+            <!-- <span>Powered by <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a></span><br> -->
             <span>
                 &copy; 2015 - 2020 
                 libin
@@ -203,22 +227,6 @@
                 counter.tags
             </div>
             <div class="tags-contain">
-                
-                    <v-badge :value="tagHover" transition="slide-x-transition" inline content="1" >
-                        <v-hover v-model="tagHover">
-                            <v-chip color="secondary" class="tags-chip font-weight-medium">
-                                <a href="/tags/linux/">linux</a>
-                            </v-chip>
-                        </v-hover>
-                    </v-badge>
-                
-                    <v-badge :value="tagHover" transition="slide-x-transition" inline content="1" >
-                        <v-hover v-model="tagHover">
-                            <v-chip color="secondary" class="tags-chip font-weight-medium">
-                                <a href="/tags/others/">others</a>
-                            </v-chip>
-                        </v-hover>
-                    </v-badge>
                 
             </div>
         

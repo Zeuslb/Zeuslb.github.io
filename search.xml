@@ -94,9 +94,9 @@
 <li>尽量不要出现特殊符号</li>
 </ol>
 ]]></content>
-      <tags>
-        <tag>linux</tag>
-      </tags>
+      <categories>
+        <category>linux</category>
+      </categories>
   </entry>
   <entry>
     <title>Hello World</title>
@@ -115,8 +115,8 @@
 
 <p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 ]]></content>
-      <tags>
-        <tag>others</tag>
-      </tags>
+      <categories>
+        <category>others</category>
+      </categories>
   </entry>
 </search>

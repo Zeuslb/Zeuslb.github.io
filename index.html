@@ -163,6 +163,30 @@
     
         <v-list id="sub-menu" class="font-weight-medium" dense>
             
+                
+                    <v-list-item href="/categories/linux/" link>
+                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="1" >
+                            <v-hover v-model="menuHover">
+                                <v-list-item-content>
+                                    <span>linux</span>                              
+                                </v-list-item-content>                           
+                            </v-hover>
+                        </v-badge>
+                    </v-list-item>
+                
+            
+                
+                    <v-list-item href="/categories/others/" link>
+                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="1" >
+                            <v-hover v-model="menuHover">
+                                <v-list-item-content>
+                                    <span>others</span>                              
+                                </v-list-item-content>                           
+                            </v-hover>
+                        </v-badge>
+                    </v-list-item>
+                
+            
         </v-list>    
     
 
@@ -188,8 +212,8 @@
                 </span>
                 <br>
             
-            <span>Theme: <a target="_blank" rel="noopener" href="https://github.com/kb1000fx/hexo-theme-insulin">Insulin</a></span><br>
-            <span>Powered by <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a></span><br>
+            <!-- <span>Theme: <a target="_blank" rel="noopener" href="https://github.com/kb1000fx/hexo-theme-insulin">Insulin</a></span><br> -->
+            <!-- <span>Powered by <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a></span><br> -->
             <span>
                 &copy; 2015 - 2020 
                 libin
@@ -263,20 +287,11 @@
           <v-spacer></v-spacer>
           <v-col cols="auto">
             
-              <v-card flat color="secondary" tile class="index-article-header-tag  font-weight-medium">
-                
-                  <span class="index-article-header-tag-content">
-                    <v-icon>fas fa-tag</v-icon>
-                    <a rel="tag" href = /tags/linux/ >linux</a>
-                  </span>
-                
-              </v-card>
-            
           </v-col>
         </v-row>
         <span>
           
-            <a class="index-article-header-category font-weight-bold" href="/2020/01/02/05-linux-Linux%20%E5%B8%B8%E8%A7%81%E6%9C%8D%E5%8A%A1/">Uncategorized></a>
+            <a class="index-article-header-category font-weight-bold" href="/categories/linux/">linux></a>
            
         </span> 
         <a class="index-article-header-title font-weight-medium" href="/2020/01/02/05-linux-Linux%20%E5%B8%B8%E8%A7%81%E6%9C%8D%E5%8A%A1/">定时任务</a>
@@ -321,20 +336,11 @@
           <v-spacer></v-spacer>
           <v-col cols="auto">
             
-              <v-card flat color="secondary" tile class="index-article-header-tag  font-weight-medium">
-                
-                  <span class="index-article-header-tag-content">
-                    <v-icon>fas fa-tag</v-icon>
-                    <a rel="tag" href = /tags/others/ >others</a>
-                  </span>
-                
-              </v-card>
-            
           </v-col>
         </v-row>
         <span>
           
-            <a class="index-article-header-category font-weight-bold" href="/2020/01/02/hello-world/">Uncategorized></a>
+            <a class="index-article-header-category font-weight-bold" href="/categories/others/">others></a>
            
         </span> 
         <a class="index-article-header-title font-weight-medium" href="/2020/01/02/hello-world/">Hello World</a>
