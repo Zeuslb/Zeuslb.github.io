@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Hello World</title>
+    <title>定时任务</title>
     <url>/2020/01/02/05-linux-Linux%20%E5%B8%B8%E8%A7%81%E6%9C%8D%E5%8A%A1/</url>
     <content><![CDATA[<h3 id="4-1-系统定时任务"><a href="#4-1-系统定时任务" class="headerlink" title="4.1 系统定时任务"></a>4.1 系统定时任务</h3><h4 id="4-1-1-定时任务服务程序初识"><a href="#4-1-1-定时任务服务程序初识" class="headerlink" title="4.1.1 定时任务服务程序初识"></a>4.1.1 定时任务服务程序初识</h4><ol>
 <li>作用：让指定任务可以在规定时间由系统自动执行</li>
@@ -94,6 +94,9 @@
 <li>尽量不要出现特殊符号</li>
 </ol>
 ]]></content>
+      <tags>
+        <tag>linux</tag>
+      </tags>
   </entry>
   <entry>
     <title>Hello World</title>
@@ -112,5 +115,8 @@
 
 <p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 ]]></content>
+      <tags>
+        <tag>others</tag>
+      </tags>
   </entry>
 </search>
