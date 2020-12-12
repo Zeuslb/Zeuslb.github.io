@@ -1,0 +1,49 @@
+.v-application code {
+  border-radius: 6px;
+  background-color: #424242;
+  color: #fff;
+  font-weight: initial;
+}
+.typo h1,
+.typo h2,
+.typo h3,
+.typo h4,
+.typo h5,
+.typo h6 {
+  background: #58acfa;
+  color: #fff;
+  padding: 3px 10px 1px;
+  border-radius: 5px;
+}
+.v-application a {
+  text-decoration: none;
+}
+code {
+  text-shadow: initial;
+  font-family: Yahei !important;
+}
+ul {
+  list-style-type: circle !important;
+}
+thead {
+  background: #424242;
+  color: #fff;
+  text-align: center;
+}
+table {
+  width: 100%;
+}
+th {
+  border-left: 2px solid #4c4c4c;
+  border-right: 2px solid #4c4c4c;
+}
+tr,
+td {
+  border: 2px solid #444;
+  text-align: center;
+}
+.highlight tr,
+.highlight td {
+  border: initial;
+  text-align: initial;
+}
