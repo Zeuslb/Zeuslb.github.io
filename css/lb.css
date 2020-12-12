@@ -48,9 +48,6 @@ td {
   text-align: initial;
 }
 @media (max-width: 750px) {
-  * {
-    overflow: hidden;
-  }
   .v-application ol,
   .v-application ul {
     padding-left: 4vw;
