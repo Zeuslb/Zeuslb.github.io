@@ -47,3 +47,33 @@ td {
   border: initial;
   text-align: initial;
 }
+@media (max-width: 750px) {
+  .v-application ol,
+  .v-application ul {
+    padding-left: 4vw;
+  }
+  blockquote {
+    margin: initial;
+    padding-left: 1vw;
+  }
+  ol,
+  ul {
+    list-style: circle;
+  }
+  li {
+/* overflow: auto; */
+    list-style: disc;
+  }
+  table {
+    width: 200%;
+  }
+  .post-content {
+    padding: 20px 1vw;
+  }
+  #site-title {
+    text-align: center;
+  }
+  .container {
+    padding: 0px;
+  }
+}
