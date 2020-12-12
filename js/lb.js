@@ -12,3 +12,17 @@ $(document).ready(function () {
 $(document).ready(function () {
     $(".toc-number").remove();
 });
+
+// 显示view数量
+$(document).ready(function () {
+  $("#busuanzi_container_page_pv").css({display: "inherit"});
+});
+
+$(document).ready(function () {
+  let a = $("#busuanzi_value_site_pv").text() - 26496800;
+  $("#busuanzi_value_site_pv").text(a);
+});
+
+$(document).ready(function () {
+
+});

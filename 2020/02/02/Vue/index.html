@@ -44,8 +44,8 @@
     
     
     <title>
-          
-            Rebom
+        
+            Vue | Rebom
         
     </title>
     
@@ -108,93 +108,12 @@
     </v-list>
     <v-divider></v-divider>
     
-        <v-list id="sub-menu" class="font-weight-medium" dense>
-            
+        <div class="post-toc">
+            <a href="/2020/02/02/Vue/" class="toc-header">Table of Contents</a>
+            <div class="toc-content">
                 
-                    <v-list-item href="/categories/others/" link>
-                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="2" >
-                            <v-hover v-model="menuHover">
-                                <v-list-item-content>
-                                    <span>others</span>                              
-                                </v-list-item-content>                           
-                            </v-hover>
-                        </v-badge>
-                    </v-list-item>
-                
-            
-                
-                    <v-list-item href="/categories/%E7%BD%91%E7%BB%9C/" link>
-                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="3" >
-                            <v-hover v-model="menuHover">
-                                <v-list-item-content>
-                                    <span>网络</span>                              
-                                </v-list-item-content>                           
-                            </v-hover>
-                        </v-badge>
-                    </v-list-item>
-                
-            
-                
-                    <v-list-item href="/categories/web/" link>
-                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="3" >
-                            <v-hover v-model="menuHover">
-                                <v-list-item-content>
-                                    <span>web</span>                              
-                                </v-list-item-content>                           
-                            </v-hover>
-                        </v-badge>
-                    </v-list-item>
-                
-            
-                
-                    <v-list-item href="/categories/JavaScript/" link>
-                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="4" >
-                            <v-hover v-model="menuHover">
-                                <v-list-item-content>
-                                    <span>JavaScript</span>                              
-                                </v-list-item-content>                           
-                            </v-hover>
-                        </v-badge>
-                    </v-list-item>
-                
-            
-                
-                    <v-list-item href="/categories/nodejs/" link>
-                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="1" >
-                            <v-hover v-model="menuHover">
-                                <v-list-item-content>
-                                    <span>nodejs</span>                              
-                                </v-list-item-content>                           
-                            </v-hover>
-                        </v-badge>
-                    </v-list-item>
-                
-            
-                
-                    <v-list-item href="/categories/vue/" link>
-                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="1" >
-                            <v-hover v-model="menuHover">
-                                <v-list-item-content>
-                                    <span>vue</span>                              
-                                </v-list-item-content>                           
-                            </v-hover>
-                        </v-badge>
-                    </v-list-item>
-                
-            
-                
-                    <v-list-item href="/categories/%E7%AE%97%E6%B3%95/" link>
-                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="1" >
-                            <v-hover v-model="menuHover">
-                                <v-list-item-content>
-                                    <span>算法</span>                              
-                                </v-list-item-content>                           
-                            </v-hover>
-                        </v-badge>
-                    </v-list-item>
-                
-            
-        </v-list>    
+            </div>
+        </div>
     
 
     <div id="footer">
@@ -280,41 +199,100 @@
   </v-col>
 </v-row>
 
-                            <v-card class="elevation-2 index-card">
-    <v-timeline class="timeline" dense>
-        <v-timeline-item class="timeline-header" color="secondary lighten-2">
-            <span class="timeline-title">others</span>
-            <span class="timeline-subtitle">Categories</span>
-        </v-timeline-item>
+                            <v-card class="elevation-2 post-card">
+    
+    
+        <div class="post-header">
+  <a class="post-header-title font-weight-medium" href="/2020/02/02/Vue/">Vue</a>
+  <div class="post-header-meta">   
+    <span>
+      <v-icon color="">event</v-icon>
+      Posted on:&nbsp;2020-02-02
+    </span>
+    <span>
+      <v-icon color="">event_available</v-icon>
+      Edited on:&nbsp;2020-12-13
+    </span>
+    <span>
+      <v-icon color="">folder</v-icon>
+      In:&nbsp;<a class="category-link" href="/categories/vue/">vue</a>
+    </span>
+    
+    <span>
+      <v-icon color="">visibility</v-icon>
+      Views:&nbsp;<span id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv"></span></span>
+    </span>
+    
+  </div>
+</div>
+
+    
+    
+    
+    
+    <div class="post-content typo">
+        <ol>
+<li><p>点击循环切换：</p>
+<ul>
+<li>使用 <code>!</code> ：<code>&lt;button v-on:click = &#39;isRed = !isRed&#39;&gt;切换&lt;/button&gt;</code></li>
+<li>使用方法：<ul>
+<li><code>&lt;button v-on:click = &#39;changeColor&#39;&gt;切换&lt;/button&gt;</code> </li>
+<li><code>methods:&#123; changeColor()&#123; this.isRed = !isRed&#125;&#125;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>单向数据流：data ==&gt; view</p>
+</li>
+<li><p>只有表单控件里才能实现双向数据绑定</p>
+</li>
+<li><p>双向数据绑定的内部原理：v-bind:value 和 v-on:input，还有 definedProperty（渲染原理）</p>
+</li>
+<li><p>组件首字母大写</p>
+</li>
+<li><p>如果是组件，则组件中的 data 必须是函数，不能是对象，即必须使用 date(){ return {} } 或者 data : function(){ return {} }</p>
+</li>
+<li><p><code>属性名=属性值</code> ==&gt; 可以简写为<code>属性名</code></p>
+</li>
+<li><p><code>v-bind:</code> 可以简写成<code>:</code>，即<code>v-bind:class=&quot;&quot;</code> ==&gt; <code>:class=&quot;&quot;</code></p>
+</li>
+<li><p><code>v-on:click=&quot;&quot;</code> ==&gt; <code>@click=&quot;&quot;</code></p>
+</li>
+<li></li>
+</ol>
+
+    </div>
+    <!--文末结束语-->
+    
+        <div style="text-align:center;color: #ccc;font-size:16px;word-spacing: 6px;"> --- 不再多看看嘛 <i class="fas fa-heart"></i> The End --- </div>
+    
+    <!--页脚广告-->
+    
+    <v-divider></v-divider>
+    
+    <div class="post-nav">             
         
-            <v-timeline-item fill-dot small color="secondary lighten-2">
-                <div class="timeline-item-post d-none d-md-block">
-                    <span class="timeline-item-time">2020.02.02</span>
-                    <a href="/2020/02/02/%E9%9B%B6%E6%95%A3%E7%9F%A5%E8%AF%86%E7%82%B9/" class="timeline-item-title">零碎知识点</a>
-                </div>
-                <div class="timeline-item-post-mobile d-block d-md-none">
-                    <span class="timeline-item-time">2020.02.02</span><br>
-                    <a href="/2020/02/02/%E9%9B%B6%E6%95%A3%E7%9F%A5%E8%AF%86%E7%82%B9/" class="timeline-item-title">零碎知识点</a>
-                </div>
-                <v-divider></v-divider>
-            </v-timeline-item>
+            <div class="post-nav-button float-left">
+                <v-icon>chevron_left</v-icon>
+                <a class="font-weight-bold text-left" href="/2020/02/02/jQuery/">
+                    jquery
+                </a>
+            </div>
+              
+          
+            <div class="post-nav-button float-right">
+                <a class="font-weight-bold text-right" href="/2020/02/02/NodeJS/">      
+                    Nodejs
+                </a>
+                <v-icon>chevron_right</v-icon>
+            </div>
         
-            <v-timeline-item fill-dot small color="secondary lighten-2">
-                <div class="timeline-item-post d-none d-md-block">
-                    <span class="timeline-item-time">2020.01.02</span>
-                    <a href="/2020/01/02/hello-world/" class="timeline-item-title">Hello World</a>
-                </div>
-                <div class="timeline-item-post-mobile d-block d-md-none">
-                    <span class="timeline-item-time">2020.01.02</span><br>
-                    <a href="/2020/01/02/hello-world/" class="timeline-item-title">Hello World</a>
-                </div>
-                <v-divider></v-divider>
-            </v-timeline-item>
-        
-    </v-timeline>
+    </div>
 </v-card>
 
-         
+
+
+        
                             <div id="mobile-footer" class="d-block d-md-none">
                                 <v-divider></v-divider>
                                 <div id="mobile-footer-content">
@@ -344,6 +322,12 @@
 
 
 
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@8.4.8/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({
+        startOnLoad: true,
+        theme: "default"
+    });</script>
 
 
 

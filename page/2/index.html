@@ -37,6 +37,62 @@
 
     
     
+    
+        <script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        
+            load: ['[tex]/mhchem'],
+        
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        
+            packages: {'[+]': ['mhchem']},
+        
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
           
 
     
@@ -281,39 +337,212 @@
 </v-row>
 
                             <v-card class="elevation-2 index-card">
-    <v-timeline class="timeline" dense>
-        <v-timeline-item class="timeline-header" color="secondary lighten-2">
-            <span class="timeline-title">others</span>
-            <span class="timeline-subtitle">Categories</span>
-        </v-timeline-item>
+  
+    <article class="index-article">
+      
+      <div class="index-article-header">
+        <v-row no-gutters>
+          <v-col cols="auto">
+            <div class="index-article-header-date font-weight-medium">
+              2020-02-02
+            </div>
+          </v-col>
+          <v-spacer></v-spacer>
+          <v-col cols="auto">
+            
+          </v-col>
+        </v-row>
+        <span>
+          
+            <a class="index-article-header-category font-weight-bold" href="/categories/web/">web></a>
+           
+        </span> 
+        <a class="index-article-header-title font-weight-medium" href="/2020/02/02/jQuery/">jquery</a>
+      </div>
+      
+      <div class="index-article-content">
         
-            <v-timeline-item fill-dot small color="secondary lighten-2">
-                <div class="timeline-item-post d-none d-md-block">
-                    <span class="timeline-item-time">2020.02.02</span>
-                    <a href="/2020/02/02/%E9%9B%B6%E6%95%A3%E7%9F%A5%E8%AF%86%E7%82%B9/" class="timeline-item-title">零碎知识点</a>
-                </div>
-                <div class="timeline-item-post-mobile d-block d-md-none">
-                    <span class="timeline-item-time">2020.02.02</span><br>
-                    <a href="/2020/02/02/%E9%9B%B6%E6%95%A3%E7%9F%A5%E8%AF%86%E7%82%B9/" class="timeline-item-title">零碎知识点</a>
-                </div>
-                <v-divider></v-divider>
-            </v-timeline-item>
+          
+事件绑定1234$(&quot;ul&quot;).on(&quot;click&quot;, function() &#123;&#125;); // 普通事件绑定$(&quot;ul&quot;).on(&quot;click&quot;, &quot;li&quot;, function() &#123;  $(this).html();&#125;); // 事件委托，当子元素是...
         
-            <v-timeline-item fill-dot small color="secondary lighten-2">
-                <div class="timeline-item-post d-none d-md-block">
-                    <span class="timeline-item-time">2020.01.02</span>
-                    <a href="/2020/01/02/hello-world/" class="timeline-item-title">Hello World</a>
-                </div>
-                <div class="timeline-item-post-mobile d-block d-md-none">
-                    <span class="timeline-item-time">2020.01.02</span><br>
-                    <a href="/2020/01/02/hello-world/" class="timeline-item-title">Hello World</a>
-                </div>
-                <v-divider></v-divider>
-            </v-timeline-item>
+      </div>
+      
+      <div class="index-article-readmore ">
+        <v-btn text href="/2020/02/02/jQuery/">Read More</v-btn>
+      </div>
+      <v-divider></v-divider>
+    </article> 
+  
+    <article class="index-article">
+      
+      <div class="index-article-header">
+        <v-row no-gutters>
+          <v-col cols="auto">
+            <div class="index-article-header-date font-weight-medium">
+              2020-02-02
+            </div>
+          </v-col>
+          <v-spacer></v-spacer>
+          <v-col cols="auto">
+            
+          </v-col>
+        </v-row>
+        <span>
+          
+            <a class="index-article-header-category font-weight-bold" href="/categories/vue/">vue></a>
+           
+        </span> 
+        <a class="index-article-header-title font-weight-medium" href="/2020/02/02/Vue/">Vue</a>
+      </div>
+      
+      <div class="index-article-content">
         
-    </v-timeline>
-</v-card>
+          
+点击循环切换：
 
+使用 ! ：&lt;button v-on:click = &#39;isRed = !isRed&#39;&gt;切换&lt;/button&gt;
+使用方法：
+&lt;button v-on:click = &#39;changeColor&#39;&gt;切换&lt;/button&gt; 
+methods:&#123; changeColor()&#123; t...
+        
+      </div>
+      
+      <div class="index-article-readmore ">
+        <v-btn text href="/2020/02/02/Vue/">Read More</v-btn>
+      </div>
+      <v-divider></v-divider>
+    </article> 
+  
+    <article class="index-article">
+      
+      <div class="index-article-header">
+        <v-row no-gutters>
+          <v-col cols="auto">
+            <div class="index-article-header-date font-weight-medium">
+              2020-02-02
+            </div>
+          </v-col>
+          <v-spacer></v-spacer>
+          <v-col cols="auto">
+            
+          </v-col>
+        </v-row>
+        <span>
+          
+            <a class="index-article-header-category font-weight-bold" href="/categories/nodejs/">nodejs></a>
+           
+        </span> 
+        <a class="index-article-header-title font-weight-medium" href="/2020/02/02/NodeJS/">Nodejs</a>
+      </div>
+      
+      <div class="index-article-content">
+        
+          一. Node 基础1.1 为什么学习 Node?
+IO 优势
+对于文件读写，Node 采用的是非阻塞 IO
+传统 IO 在读写文件的时候 CPU 来处理，而代码执行也处于等待中，浪费性能
+非阻塞 IO 将读写操作交给 CPU，而代码正常执行，减少等待浪费的性能
+
+
+应用场景
+实际应用: webpack/gulp/npm/http-server/json-server（前三者都是 IO 操...
+        
+      </div>
+      
+      <div class="index-article-readmore ">
+        <v-btn text href="/2020/02/02/NodeJS/">Read More</v-btn>
+      </div>
+      <v-divider></v-divider>
+    </article> 
+  
+    <article class="index-article">
+      
+      <div class="index-article-header">
+        <v-row no-gutters>
+          <v-col cols="auto">
+            <div class="index-article-header-date font-weight-medium">
+              2020-02-02
+            </div>
+          </v-col>
+          <v-spacer></v-spacer>
+          <v-col cols="auto">
+            
+          </v-col>
+        </v-row>
+        <span>
+          
+            <a class="index-article-header-category font-weight-bold" href="/categories/%E7%AE%97%E6%B3%95/">算法></a>
+           
+        </span> 
+        <a class="index-article-header-title font-weight-medium" href="/2020/02/02/%E5%B8%B8%E7%94%A8%E7%9A%84%E7%AE%97%E6%B3%95/">算法</a>
+      </div>
+      
+      <div class="index-article-content">
+        
+          一. 排序算法1.1 冒泡排序
+复杂度：O(n^2)
+
+冒泡排序：每一轮都将本次遍历元素中的最大值放到最后一位，经过 arr.length - 1 次之后完成排序
+
+代码
+1234567891011121314function bubbleSort(arr) &#123;    // n 个数需要 n - 1 次冒泡即可完成排序    for (let i = 0; i &lt; arr....
+        
+      </div>
+      
+      <div class="index-article-readmore ">
+        <v-btn text href="/2020/02/02/%E5%B8%B8%E7%94%A8%E7%9A%84%E7%AE%97%E6%B3%95/">Read More</v-btn>
+      </div>
+      <v-divider></v-divider>
+    </article> 
+  
+    <article class="index-article">
+      
+      <div class="index-article-header">
+        <v-row no-gutters>
+          <v-col cols="auto">
+            <div class="index-article-header-date font-weight-medium">
+              2020-01-02
+            </div>
+          </v-col>
+          <v-spacer></v-spacer>
+          <v-col cols="auto">
+            
+          </v-col>
+        </v-row>
+        <span>
+          
+            <a class="index-article-header-category font-weight-bold" href="/categories/others/">others></a>
+           
+        </span> 
+        <a class="index-article-header-title font-weight-medium" href="/2020/01/02/hello-world/">Hello World</a>
+      </div>
+      
+      <div class="index-article-content">
+        
+          Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
+Q...
+        
+      </div>
+      
+      <div class="index-article-readmore ">
+        <v-btn text href="/2020/01/02/hello-world/">Read More</v-btn>
+      </div>
+      <v-divider></v-divider>
+    </article> 
+   
+</v-card>  
+
+
+  <div id="pagination" class="text-center">
+    <v-pagination 
+      v-model="currentPage" 
+      :length=2 
+      @input="PageChange" 
+      prev-icon="chevron_left"
+      next-icon="chevron_right"
+      color="secondary"
+    ></v-pagination>
+  </div>
          
                             <div id="mobile-footer" class="d-block d-md-none">
                                 <v-divider></v-divider>

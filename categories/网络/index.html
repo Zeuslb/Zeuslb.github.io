@@ -111,11 +111,11 @@
         <v-list id="sub-menu" class="font-weight-medium" dense>
             
                 
-                    <v-list-item href="/categories/linux/" link>
-                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="1" >
+                    <v-list-item href="/categories/others/" link>
+                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="2" >
                             <v-hover v-model="menuHover">
                                 <v-list-item-content>
-                                    <span>linux</span>                              
+                                    <span>others</span>                              
                                 </v-list-item-content>                           
                             </v-hover>
                         </v-badge>
@@ -123,11 +123,71 @@
                 
             
                 
-                    <v-list-item href="/categories/others/" link>
+                    <v-list-item href="/categories/%E7%BD%91%E7%BB%9C/" link>
+                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="3" >
+                            <v-hover v-model="menuHover">
+                                <v-list-item-content>
+                                    <span>网络</span>                              
+                                </v-list-item-content>                           
+                            </v-hover>
+                        </v-badge>
+                    </v-list-item>
+                
+            
+                
+                    <v-list-item href="/categories/web/" link>
+                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="3" >
+                            <v-hover v-model="menuHover">
+                                <v-list-item-content>
+                                    <span>web</span>                              
+                                </v-list-item-content>                           
+                            </v-hover>
+                        </v-badge>
+                    </v-list-item>
+                
+            
+                
+                    <v-list-item href="/categories/JavaScript/" link>
+                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="4" >
+                            <v-hover v-model="menuHover">
+                                <v-list-item-content>
+                                    <span>JavaScript</span>                              
+                                </v-list-item-content>                           
+                            </v-hover>
+                        </v-badge>
+                    </v-list-item>
+                
+            
+                
+                    <v-list-item href="/categories/nodejs/" link>
                         <v-badge :value="menuHover" transition="slide-y-transition" inline content="1" >
                             <v-hover v-model="menuHover">
                                 <v-list-item-content>
-                                    <span>others</span>                              
+                                    <span>nodejs</span>                              
+                                </v-list-item-content>                           
+                            </v-hover>
+                        </v-badge>
+                    </v-list-item>
+                
+            
+                
+                    <v-list-item href="/categories/vue/" link>
+                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="1" >
+                            <v-hover v-model="menuHover">
+                                <v-list-item-content>
+                                    <span>vue</span>                              
+                                </v-list-item-content>                           
+                            </v-hover>
+                        </v-badge>
+                    </v-list-item>
+                
+            
+                
+                    <v-list-item href="/categories/%E7%AE%97%E6%B3%95/" link>
+                        <v-badge :value="menuHover" transition="slide-y-transition" inline content="1" >
+                            <v-hover v-model="menuHover">
+                                <v-list-item-content>
+                                    <span>算法</span>                              
                                 </v-list-item-content>                           
                             </v-hover>
                         </v-badge>
@@ -153,12 +213,12 @@
         </div>
         <v-divider></v-divider>
         <div class="footer-content">
-            
-                <span id="busuanzi_container_site_uv" style="display: none;"> 
-                    Total Visitors <span id="busuanzi_value_site_uv"></span>
+            <!-- 
+                <span id="busuanzi_container_site_pv" style="display: none;"> 
+                    Total Visitors <span id="busuanzi_value_site_pv"></span>
                 </span>
                 <br>
-            
+             -->
             <!-- <span>Theme: <a target="_blank" rel="noopener" href="https://github.com/kb1000fx/hexo-theme-insulin">Insulin</a></span><br> -->
             <!-- <span>Powered by <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a></span><br> -->
             <span>
@@ -223,18 +283,42 @@
                             <v-card class="elevation-2 index-card">
     <v-timeline class="timeline" dense>
         <v-timeline-item class="timeline-header" color="secondary lighten-2">
-            <span class="timeline-title">linux</span>
+            <span class="timeline-title">网络</span>
             <span class="timeline-subtitle">Categories</span>
         </v-timeline-item>
         
             <v-timeline-item fill-dot small color="secondary lighten-2">
                 <div class="timeline-item-post d-none d-md-block">
-                    <span class="timeline-item-time">2020.01.02</span>
-                    <a href="/2020/01/02/05-linux-Linux%20%E5%B8%B8%E8%A7%81%E6%9C%8D%E5%8A%A1/" class="timeline-item-title">定时任务</a>
+                    <span class="timeline-item-time">2020.02.02</span>
+                    <a href="/2020/02/02/%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3/" class="timeline-item-title">网络相关知识点</a>
                 </div>
                 <div class="timeline-item-post-mobile d-block d-md-none">
-                    <span class="timeline-item-time">2020.01.02</span><br>
-                    <a href="/2020/01/02/05-linux-Linux%20%E5%B8%B8%E8%A7%81%E6%9C%8D%E5%8A%A1/" class="timeline-item-title">定时任务</a>
+                    <span class="timeline-item-time">2020.02.02</span><br>
+                    <a href="/2020/02/02/%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3/" class="timeline-item-title">网络相关知识点</a>
+                </div>
+                <v-divider></v-divider>
+            </v-timeline-item>
+        
+            <v-timeline-item fill-dot small color="secondary lighten-2">
+                <div class="timeline-item-post d-none d-md-block">
+                    <span class="timeline-item-time">2020.02.02</span>
+                    <a href="/2020/02/02/Ajax/" class="timeline-item-title">Ajax</a>
+                </div>
+                <div class="timeline-item-post-mobile d-block d-md-none">
+                    <span class="timeline-item-time">2020.02.02</span><br>
+                    <a href="/2020/02/02/Ajax/" class="timeline-item-title">Ajax</a>
+                </div>
+                <v-divider></v-divider>
+            </v-timeline-item>
+        
+            <v-timeline-item fill-dot small color="secondary lighten-2">
+                <div class="timeline-item-post d-none d-md-block">
+                    <span class="timeline-item-time">2020.02.02</span>
+                    <a href="/2020/02/02/HTTP%E5%8D%8F%E8%AE%AE/" class="timeline-item-title">HTTP协议</a>
+                </div>
+                <div class="timeline-item-post-mobile d-block d-md-none">
+                    <span class="timeline-item-time">2020.02.02</span><br>
+                    <a href="/2020/02/02/HTTP%E5%8D%8F%E8%AE%AE/" class="timeline-item-title">HTTP协议</a>
                 </div>
                 <v-divider></v-divider>
             </v-timeline-item>
@@ -246,7 +330,7 @@
                             <div id="mobile-footer" class="d-block d-md-none">
                                 <v-divider></v-divider>
                                 <div id="mobile-footer-content">
-                                    <span>Theme: <a target="_blank" rel="noopener" href="https://github.com/kb1000fx/hexo-theme-insulin">Insulin</a> &nbsp; Powered by <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a></span><br>
+                                    <!-- <span>Theme: <a target="_blank" rel="noopener" href="https://github.com/kb1000fx/hexo-theme-insulin">Insulin</a> &nbsp; Powered by <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a></span><br> -->
                                     <span> &copy; 2016 - 2020 libin</span>
                                 </div>
                             </div>                   
@@ -266,19 +350,18 @@
 <script src="/js/main.js"></script>
 
 
+
+
+    <script async src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
 <script src="/js/lb.js"></script>
-
-
-
-
-    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-
-
-
-
-
-
-
 
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/hibiki.model.json"},"display":{"position":"right","width":145,"height":315},"mobile":{"show":true,"scale":0.5},"react":{"opacityDefault":0.7,"opacityOnHover":0.8},"log":false});</script></body>
 </html>
