@@ -48,6 +48,9 @@ td {
   text-align: initial;
 }
 @media (max-width: 750px) {
+  * {
+    overflow: hidden;
+  }
   .v-application ol,
   .v-application ul {
     padding-left: 4vw;
@@ -61,11 +64,7 @@ td {
     list-style: circle;
   }
   li {
-/* overflow: auto; */
     list-style: disc;
-  }
-  table {
-    width: 200%;
   }
   .post-content {
     padding: 20px 1vw;
