@@ -66,6 +66,9 @@ td {
   li {
     list-style: disc;
   }
+  table {
+    width: 99%;
+  }
   .post-content {
     padding: 20px 1vw;
   }
