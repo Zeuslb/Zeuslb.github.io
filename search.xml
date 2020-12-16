@@ -1,766 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Ajax</title>
-    <url>/2020/02/02/Ajax/</url>
-    <content><![CDATA[<h5 id="一-初识"><a href="#一-初识" class="headerlink" title="一. 初识"></a>一. 初识</h5><ol>
-<li>Ajax 是一种不用刷新整个页面便可与服务器通讯的办法</li>
-<li>Ajax 允许通过与后台的 Web 服务器交换数据来异步更新网页。这意味着可以更新网页的某些部分，而无需重新加载整个页面</li>
-<li>Ajax ：Asynchronous javascript and xml，用 JavaScript 以异步的形式操作 xml （现在操作的是 JSON）</li>
-<li>所有现代浏览器（Chrome，Firefox，IE7 +，Edge，Safari，Opera）都具有内置 XMLHttpRequest 对象，Internet Explorer 的旧版本（5/6）使用 ActiveX 对象而不是该 XMLHttpRequest 对象（<code>new ActiveXObject(&quot;Microsoft.XMLHTTP&quot;);</code>）</li>
-</ol>
-<h5 id="二-异步与同步"><a href="#二-异步与同步" class="headerlink" title="二. 异步与同步"></a>二. 异步与同步</h5><ol>
-<li>机器语言中的异步：不阻塞，异步的方式不影响其他任务的执行，相当于早上起床之后烤面包和刷牙，两者不冲突各自执行</li>
-<li>机器语言中的同步：阻塞，相当于早上起床之后先刷牙后洗脸，两个不能同时进行</li>
-</ol>
-<h5 id="三-两个模型"><a href="#三-两个模型" class="headerlink" title="三. 两个模型"></a>三. 两个模型</h5><ol>
-<li>Web 的传统模型：客户端向服务器发送一个请求，服务器返回整个页面，如此反复</li>
-<li>在 Ajax 模型中，数据在客户端与服务器之间独立传输。服务器不再返回整个页面</li>
-</ol>
-<h5 id="三-使用-Ajax-的准备工作"><a href="#三-使用-Ajax-的准备工作" class="headerlink" title="三. 使用 Ajax 的准备工作"></a>三. 使用 Ajax 的准备工作</h5><ol>
-<li>首先需要浏览器</li>
-<li>其次需要一个 Ajax 对象</li>
-<li>Ajax 对象的<code>open(method, url, flag)</code>方法用于填装信息，flag = true 时用异步方式，false 为同步方式</li>
-<li>Ajax 对象的 send() 方法用来发送 Ajax 请求</li>
-<li>通过判断 readyState 来监测 Ajax 此时的状态，0 代表还没有发送的时候，1 代表已发送时的状态，4 代表已经返回到了浏览器。通过 onreadystatechange 事件监测 readystate</li>
-<li>还需要判断 HTTP 状态码，4XX 通常为客户端错误（比如 404 代表请求 URL 错误），5XX 通常为服务器错误，200 状态码为正常的可用状态</li>
-<li>回调函数：是作为参数传递给另一个函数的函数</li>
-</ol>
-<h5 id="四-Ajax-对象的常见方法与属性"><a href="#四-Ajax-对象的常见方法与属性" class="headerlink" title="四. Ajax 对象的常见方法与属性"></a>四. Ajax 对象的常见方法与属性</h5><ol>
-<li><code>open(&#39;method&#39;, &#39;url&#39;, true)</code>：建立对服务器的调用</li>
-<li><code>send(content)</code>：向服务器发送请求</li>
-<li><code>setRequestHeader(&#39;label&#39;,&#39;value&#39;)</code>：把指定头部设置为所提供的值，在设置任何头部之前必须先调用 open() 方法</li>
-<li><code>onreadystatechange</code>：状态改变的事件触发器</li>
-<li><code>readyState</code>：对象状态（integer）<ul>
-<li>值为 0 ，未初始化，未调用 send() 方法</li>
-<li>值为 1 ，读取中，已调用 send() 方法，正在发送请求</li>
-<li>值为 2 ，已读取，send() 方法执行完成，接收到所有的响应内容</li>
-<li>值为 3 ，交互中，正在解析响应内容</li>
-<li>值为 4 ，响应内容解析完成</li>
-</ul>
-</li>
-<li><code>reponseText</code>：获得字符串形式的响应数据</li>
-<li><code>reponseXML</code>：获得 XML 形式的响应数据（现在基本已不使用）</li>
-<li><code>status</code>：服务器返回的状态码</li>
-</ol>
-<h5 id="五-GET-方式原生代码"><a href="#五-GET-方式原生代码" class="headerlink" title="五. GET 方式原生代码"></a>五. GET 方式原生代码</h5><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> time = <span class="keyword">new</span> <span class="built_in">Date</span>().getTime(); <span class="comment">// 解决 GET 方式的缓存问题</span></span><br><span class="line"><span class="keyword">var</span> data = <span class="string">&quot;username=lb&quot;</span> + <span class="string">&quot;&amp;time=&quot;</span> + time;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> xml = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">window</span>.XMLHttpRequest) &#123; <span class="comment">// 此处使用 window.XMLHTTPRequest 是因为它是一个构造函数，IE 中直接写的话不存在则报错，而 window.XMLHTTPRequest  的方式只会返回 undefined 去走 IE 兼容写法，而不会因为报错直接停止</span></span><br><span class="line">  xml = <span class="keyword">new</span> XMLHttpRequest(); <span class="comment">// W3C</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  xml = <span class="keyword">new</span> ActiveXObject(<span class="string">&quot;Microsoft.XMLHTTP&quot;</span>); <span class="comment">// IE</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">xml.open(<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;getNews.php&quot;</span> + <span class="string">&quot;?&quot;</span> + data, <span class="literal">true</span>);</span><br><span class="line">xml.send();</span><br><span class="line">xml.onreadystatechange = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (xml.readyState == <span class="number">4</span>) &#123;</span><br><span class="line">    <span class="comment">// 注意，因为 readystatechange 事件会触发四次，所以推荐 readyState 和 status 分开写，不然后期使用异步方式的三个函数时会出现问题</span></span><br><span class="line">    <span class="keyword">if</span> (xml.status == <span class="number">200</span>) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(xml.responseText);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<h5 id="六-POST-方式原生代码"><a href="#六-POST-方式原生代码" class="headerlink" title="六. POST 方式原生代码"></a>六. POST 方式原生代码</h5><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">xml.open(<span class="string">&quot;POST&quot;</span>, <span class="string">&quot;getNews.php&quot;</span>, <span class="literal">true</span>);</span><br><span class="line">xml.setRequestHeader(<span class="string">&quot;Content-type&quot;</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>); <span class="comment">// 设置请求头，此处内容类型为编码，即不是文件格式的</span></span><br><span class="line">xml.send(data); <span class="comment">// POST 方式将数据放到 send 方法中传输</span></span><br></pre></td></tr></table></figure>
-
-<h5 id="七-GET-方式与-POST-方式原生封装"><a href="#七-GET-方式与-POST-方式原生封装" class="headerlink" title="七. GET 方式与 POST 方式原生封装"></a>七. GET 方式与 POST 方式原生封装</h5><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ajax</span>(<span class="params">method, url, flag, data, callback</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> xml = <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">window</span>.XMLHttpRequest) &#123;</span><br><span class="line">    xml = <span class="keyword">new</span> XMLHttpRequest(); <span class="comment">// W3C</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    xml = <span class="keyword">new</span> ActiveXObject(<span class="string">&quot;Microsoft.XMLHTTP&quot;</span>); <span class="comment">// IE</span></span><br><span class="line">  &#125;</span><br><span class="line">  method = method.toUpperCase();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (method === <span class="string">&quot;GET&quot;</span>) &#123;</span><br><span class="line">    xml.open(method, url + <span class="string">&quot;?&quot;</span> + data, flag);</span><br><span class="line">    xml.send();</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (method === <span class="string">&quot;POST&quot;</span>) &#123;</span><br><span class="line">    xml.open(method, url, flag);</span><br><span class="line">    xml.setRequestHeader(<span class="string">&quot;Content-type&quot;</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>);</span><br><span class="line">    xml.send(data);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 小 BUG ：可能会出现网速过快而导致 send 之前状态码直接变为 4</span></span><br><span class="line">  xml.onreadystatechange = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (xml.readyState == <span class="number">4</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (xml.status == <span class="number">200</span>) &#123;</span><br><span class="line">        callback(xml.responseText);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        alert(<span class="string">&quot;error&quot;</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h5 id="八-ajax-方法"><a href="#八-ajax-方法" class="headerlink" title="八.$.ajax()方法"></a>八.<code>$.ajax()</code>方法</h5><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$.ajax(&#123; <span class="comment">// 传递一个对象作为参数，该对象用来配置 ajax 请求</span></span><br><span class="line">    type:<span class="string">&#x27;get&#x27;</span>, <span class="comment">// 请求方式</span></span><br><span class="line">    url:<span class="string">&#x27;localhost:8080/get.php&#x27;</span>, <span class="comment">// 请求地址，可以是相对地址</span></span><br><span class="line">    data:&#123;<span class="attr">name</span>:<span class="string">&#x27;zhangsan&#x27;</span>,<span class="attr">age</span>:<span class="string">&#x27;20&#x27;</span>&#125;, <span class="comment">// 请求参数，传递一个对象，也可以是字符串，即 data:&#x27;name=zhangsan&amp;age=20&#x27;，当你写的是对象格式，但方法内部会自动转为字符串格式（用&amp;连接）</span></span><br><span class="line">    contentType:<span class="string">&#x27;application/x-www-form-urlencoded&#x27;</span>, <span class="comment">// 该种配置发送的是&#x27;name=zhangsan&amp;age=20&#x27;格式的数据，为默认值要想发送 JSON 格式的数据，需要 contentType:&#x27;application/json&#x27;，data属性中需要传递一个 JSON 字符串，即JSON.stringify(&#123;name:&#x27;zhangsan&#x27;,age:&#x27;20&#x27;&#125;)</span></span><br><span class="line">    beforeSend:<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; <span class="comment">// 请求发送之前调用，应用：可以在请求发送之前验证要发送的数据格式，也可以将等待图片展示出来（动态的转圈圈的那个）等等，可以提高用户体验</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>; <span class="comment">// 该代码代表该请求将不再发送</span></span><br><span class="line">    &#125;,</span><br><span class="line">    success:<span class="function"><span class="keyword">function</span>(<span class="params">response</span>)</span>&#123;</span><br><span class="line">    	<span class="comment">// 形参 reponse 为服务器端返回的数据</span></span><br><span class="line">        <span class="comment">// $.ajax() 方法内部会根据服务器端在响应头中设置的数据格式自动地将数据进行转换，即如果服务器返回的是 JSON 格式的数据，会自动的将该数据转换为 JSON 对象，不需要我们自己 JSON.parse()了</span></span><br><span class="line">	&#125;,</span><br><span class="line">    error:<span class="function"><span class="keyword">function</span>(<span class="params">xhr</span>)</span>&#123; <span class="comment">// 请求失败的时候触发</span></span><br><span class="line">        <span class="comment">// xhr 为 ajax 对象，可以根据该对象获得错误信息，并进行相关的处理</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// JQuery中专门用于拼接请求参数的方法</span></span><br><span class="line"><span class="keyword">var</span> params = $(<span class="string">&#x27;#form&#x27;</span>).serialize();</span><br><span class="line"><span class="comment">// 封装函数：将表单中用户输入的内容转换为对象类型，使得进行数据验证的时候更为方便的操作</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">serializeObject</span>(<span class="params">obj</span>)</span>&#123;</span><br><span class="line">    <span class="comment">// serializeArray()，将表单中的内容转换为数组，格式为[&#123;name:&#x27;username&#x27;,value:&#x27;用户输入的值&#x27;&#125;]，注意 name 对应的值就是表单控件中的 name 属性的值&lt;input type=&quot;password&quot; name=&quot;password&quot;&gt;</span></span><br><span class="line">    <span class="keyword">var</span> result = &#123;&#125;;</span><br><span class="line">    <span class="keyword">var</span> params = obj.serializeArray();</span><br><span class="line">    $.each(params,<span class="function"><span class="keyword">function</span>(<span class="params">index,value</span>)</span>&#123;</span><br><span class="line">        result[value.name] = value.value; <span class="comment">// &#123;username:&quot;lb&quot;,password:&quot;123456&quot;&#125;</span></span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h5 id="九-get-方法"><a href="#九-get-方法" class="headerlink" title="九.$.get()方法"></a>九.<code>$.get()方法</code></h5><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 是 $.ajax 的一种简写形式</span></span><br><span class="line"><span class="comment">// 格式：$.get(url,data,success(res,status,xhr),dataType)</span></span><br><span class="line">$.get(<span class="string">&quot;http://localhost:3000/news&quot;</span>,<span class="string">&quot;id=1&quot;</span>,<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(res);</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">1. 请求成功时触发回调函数，没有请求失败的处理函数</span></span><br><span class="line"><span class="comment">2. 第一个参数 url 为该方法的唯一必选项参数</span></span><br><span class="line"><span class="comment">3. 第二个参数 data 代表请求数据，可以是&amp;拼接的字符串、对象(即&#123;name:&quot;jack&quot;&#125;)</span></span><br><span class="line"><span class="comment">4. 第三个参数为请求成功时调用的回调函数，有三个参数，依次为请求数据结果、请求的状态、XMLHttpRequest 对象(即请求对象)</span></span><br><span class="line"><span class="comment">5. 第四个参数为预计的服务器响应数据类型，常用的有xml、html、text、script、json、jsonp</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
-
-<h5 id="十-小知识点"><a href="#十-小知识点" class="headerlink" title="十. 小知识点"></a>十. 小知识点</h5><ol>
-<li>一般<code>&lt;input&gt;</code>中的功能由 onkeyup 事件触发</li>
-<li>浏览器控制台中的 XHR 代表 Ajax 请求</li>
-<li>Ajax 的国外读法：唉债克思</li>
-</ol>
-]]></content>
-      <categories>
-        <category>网络</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>JS执行机制</title>
-    <url>/2020/02/02/JS%E6%89%A7%E8%A1%8C%E6%9C%BA%E5%88%B6/</url>
-    <content><![CDATA[<h5 id="一-浏览器常驻线程"><a href="#一-浏览器常驻线程" class="headerlink" title="一. 浏览器常驻线程"></a>一. 浏览器常驻线程</h5><ol>
-<li>JS 引擎线程：也称为 JS 内核，负责解析执行 Javascript 脚本程序的主线程（例如V8引擎）</li>
-<li>GUI 渲染线程：绘制用户界面，与 JS 主线程是互斥的<ul>
-<li>JS 可以操作 DOM 元素，进而会影响到 GUI 的渲染</li>
-<li>负责解析 HTML 文件构建 DOM 树，解析 CSS 结合 DOM 树渲染成 RenderObject 树，然后布局和绘制页面</li>
-<li>即当 JS 引擎处于运行状态时，GUI 渲染线程将处于冻结状态</li>
-</ul>
-</li>
-<li>HTTP 异步请求线程：处理用户的 GET、POST 等请求，等到返回结果之后将回调函数推入任务队列</li>
-<li>定时器触发线程：setTimeout、setInterval 等待时间结束之后把执行函数推入事件队列(W3C在HTML标准中规定setTimeout低于4ms的时间间隔算为4ms)</li>
-<li>浏览器事件处理线程：click、mouse 等交互事件发生之后将这些事件放入事件队列</li>
-<li>总结：永远只有 JS 引擎线程在执行 JS 脚本程序，其他三个线程只负责将满足触发条件的处理函数推进事件队列，等待 JS 引擎线程执行</li>
-</ol>
-<h5 id="二-JS-执行机制-单线程"><a href="#二-JS-执行机制-单线程" class="headerlink" title="二. JS 执行机制 - 单线程"></a>二. JS 执行机制 - 单线程</h5><ol>
-<li><p>单线程：同一时间只能做一件事</p>
-</li>
-<li><p>为什么会设计成单线程？</p>
-<ol>
-<li>JS 设计之初就是为了用户交互，处理 DOM</li>
-<li>如果设计成多线程，那么同一时间多个线程同时都要修改某一个 DOM ，可能会发生冲突</li>
-<li>如果加入锁的机制，那么会将问题更加复杂化，JS 相比其他健壮性的语言优势将很小</li>
-</ol>
-</li>
-<li><p>JS 是基于单线程运行的，但是可以异步执行。一般来说这种即是单线程又是异步的语言都是基于事件来驱动的，而浏览器为 JS 提供了这种环境</p>
-</li>
-<li><p>事件轮询概要：</p>
-<ol>
-<li>先判断该任务是同步还是异步，同步的进入主线程，异步的进入 Event Table 并注册函数</li>
-<li>当指定的事情完成后(比如拿到响应，或者定时器相应的时间到了)，Event Table 会将这个函数移入到 Event Queue 中</li>
-<li>当主线程内的任务执行完毕为空之后，会去 Event Queue 读取相应的函数，进入主线程执行</li>
-<li>上述的过程会不断地重复，也就是我们常说的 Event Loop(事件轮询/循环)</li>
-</ol>
-</li>
-</ol>
-<h5 id="三-宏任务与微任务"><a href="#三-宏任务与微任务" class="headerlink" title="三. 宏任务与微任务"></a>三. 宏任务与微任务</h5><ol>
-<li><p>进入 ES6 或 Node 环境中，JS 的任务分为两种，分别是宏任务(macro-task)和微任务(micro-task)，在最新的 ECMAScript 中，微任务称为 jobs，宏任务称为 task，他们的执行顺序为：<code>宏任务(同步任务) --&gt; 微任务 --&gt; 宏任务(异步任务)</code></p>
-</li>
-<li><p>宏任务（macro-task）可分为同步任务和异步任务</p>
-<ol>
-<li>同步任务：指的是在 JS 引擎主线程上按顺序执行的任务，只有前一个任务执行完毕后，才能执行后一个任务，形成一个执行栈，即函数调用栈</li>
-<li>异步任务：指的是不直接进入 JS 引擎主线程，而是满足触发条件时，相关的线程将该异步任务推进任务队列(task queue)，等待 JS 引擎主线程上的任务执行完毕，空闲时读取执行的任务，例如异步 Ajax，DOM 事件，setTimeout…</li>
-</ol>
-</li>
-<li><p>事件循环/轮询</p>
-<ol>
-<li><p>事件循环可以理解成由三部分组成，分别是：</p>
-<ul>
-<li>主线程执行栈</li>
-<li>异步任务等待触发</li>
-<li>任务队列</li>
-</ul>
-</li>
-<li><p>任务队列(task queue)就是以队列的数据结构对事件任务进行管理，特点是先进先出，后进后出</p>
-</li>
-<li><p>在JS引擎主线程执行过程中：</p>
-<ul>
-<li>首先执行宏任务的同步任务，在主线程上形成一个执行栈，可理解为函数调用栈</li>
-<li>当执行栈中的函数调用到一些异步执行的API（例如异步Ajax，DOM事件，setTimeout等API），则会开启对应的线程（Http异步请求线程，事件触发线程和定时器触发线程）进行监控和控制</li>
-<li>当异步任务的事件满足触发条件时，对应的线程则会把该事件的处理函数推进任务队列(task queue)中，等待主线程读取执行</li>
-<li>当JS引擎主线程上的任务执行完毕，则会读取任务队列中的事件，将任务队列中的事件任务推进主线程中，按任务队列顺序执行</li>
-<li>当JS引擎主线程上的任务执行完毕后，则会再次读取任务队列中的事件任务，如此循环，这就是事件循环（Event Loop）的过程</li>
-</ul>
-</li>
-<li><p>图片理解</p>
-<p><img src="https://xbsfcursotamandareg12br-my.sharepoint.com/personal/uhdckv3f_mail_hrka_net/Documents/%E4%BA%91%E5%9B%BE%E7%89%87/Event%20Loop.jpg"></p>
-</li>
-</ol>
-</li>
-<li><p>微任务</p>
-<ol>
-<li>微任务是在 es6 和 node 环境中出现的一个任务类型，微任务（micro-task）的API主要有：Promise， process.nextTick</li>
-</ol>
-</li>
-<li><p>宏任务与微任务的执行流程</p>
-<ol>
-<li>执行宏任务中同步任务，执行结束</li>
-<li>检查是否存在可执行的微任务，有的话执行所有微任务，然后读取任务队列的任务事件，推进主线程形成新的宏任务；没有的话则读取任务队列的任务事件，推进主线程形成新的宏任务</li>
-<li>执行新宏任务的事件任务，再检查是否存在可执行的微任务，如此不断的重复循环</li>
-</ol>
-</li>
-</ol>
-<h5 id="四-代码分析"><a href="#四-代码分析" class="headerlink" title="四. 代码分析"></a>四. 代码分析</h5><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(<span class="string">&#x27;script start&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;setTimeout&#x27;</span>);</span><br><span class="line">&#125;, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">Promise</span>.resolve().then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;promise1&#x27;</span>);</span><br><span class="line">&#125;).then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;promise2&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&#x27;script end&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>分析</p>
-<ol>
-<li>代码块通过语法分析和预编译后，进入执行阶段，当JS引擎主线程执行到<code>console.log(&#39;script start&#39;);</code>，JS引擎主线程认为该任务是<strong>同步任务</strong>，所以立刻执行输出<code>script start</code>，然后继续向下执行；</li>
-<li>JS引擎主线程执行到<code>setTimeout(function() &#123; console.log(&#39;setTimeout&#39;); &#125;, 0);</code>，JS引擎主线程认为setTimeout是<strong>异步任务</strong>API，则向浏览器内核进程申请开启定时器线程进行计时和控制该setTimeout任务。由于W3C在HTML标准中规定setTimeout低于4ms的时间间隔算为4ms，那么当计时到4ms时，定时器线程就把该回调处理函数推进任务队列中等待主线程执行，然后JS引擎主线程继续向下执行</li>
-<li>JS引擎主线程执行到<code>Promise.resolve().then(function() &#123; console.log(&#39;promise1&#39;); &#125;).then(function() &#123; console.log(&#39;promise2&#39;); &#125;);</code>，JS引擎主线程认为Promise是一个<strong>微任务</strong>，这把该任务划分为微任务，等待执行</li>
-<li>JS引擎主线程执行到<code>console.log(&#39;script end&#39;);</code>，JS引擎主线程认为该任务是<strong>同步任务</strong>，所以立刻执行输出<code>script end</code></li>
-<li>主线程上的宏任务执行完毕，则开始检测是否存在可执行的微任务，检测到一个<strong>Promise微任务</strong>，那么立刻执行，输出<code>promise1</code>和<code>promise2</code></li>
-<li>微任务执行完毕，主线程开始读取任务队列中的事件任务setTimeout，推入主线程形成<strong>新宏任务</strong>，然后在主线程中执行，输出<code>setTimeout</code></li>
-</ol>
-</blockquote>
-<blockquote>
-<p>结果：</p>
-<p>script start<br>script end<br>promise1<br>promise2<br>setTimeout</p>
-</blockquote>
-<h5 id="五-JS-引擎执行过程"><a href="#五-JS-引擎执行过程" class="headerlink" title="五. JS 引擎执行过程"></a>五. JS 引擎执行过程</h5><ol>
-<li>分为三个阶段，按顺序为语法分析、预编译阶段、执行阶段</li>
-<li>语法分析：分析该js脚本代码块的语法是否正确，如果出现不正确，则向外抛出一个语法错误(SyntaxError)，停止该js代码块的执行，然后继续查找并加载下一个代码块；如果语法正确，则进入预编译阶段</li>
-<li>预编译：</li>
-</ol>
-<h5 id="六-执行上下文与作用域链"><a href="#六-执行上下文与作用域链" class="headerlink" title="六. 执行上下文与作用域链"></a>六. 执行上下文与作用域链</h5>]]></content>
-      <categories>
-        <category>JavaScript</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>HTTP协议</title>
-    <url>/2020/02/02/HTTP%E5%8D%8F%E8%AE%AE/</url>
-    <content><![CDATA[<h3 id="一-HTTP-请求模型"><a href="#一-HTTP-请求模型" class="headerlink" title="一. HTTP 请求模型"></a>一. HTTP 请求模型</h3><ol>
-<li>两端：客户端和服务端，即 client 和 server</li>
-<li>两个动作：请求和响应，即 request 和 response</li>
-<li>客户端：发送请求，接收响应，除了浏览器还有其他类型的客户端</li>
-<li>服务端：接收请求，发送响应</li>
-<li>HTTP 是无状态的，即每一次的通信(响应+请求)都是独立的</li>
-</ol>
-<h3 id="二-浏览器行为与-HTTP-协议"><a href="#二-浏览器行为与-HTTP-协议" class="headerlink" title="二. 浏览器行为与 HTTP 协议"></a>二. 浏览器行为与 HTTP 协议</h3><ol>
-<li>DNS：将域名解析成IP地址</li>
-<li>解析成 IP 地址后，会通过路由转发最终找到目标服务器</li>
-<li>地址栏输入 URL 后发生了什么？<ol>
-<li>输入网址并回车</li>
-<li>解析域名</li>
-<li>浏览器发送 HTTP 请求</li>
-<li>服务器处理请求</li>
-<li>服务器返回 HTML 响应</li>
-<li>浏览器处理 HTML 页面</li>
-<li>继续请求其他资源</li>
-</ol>
-</li>
-</ol>
-<h3 id="三-什么是-HTTP-协议"><a href="#三-什么是-HTTP-协议" class="headerlink" title="三. 什么是 HTTP 协议"></a>三. 什么是 HTTP 协议</h3><ol>
-<li>HTTP 协议是超文本传输协议，是对客户端和服务器之间通信的一种约束和规范</li>
-<li>发展<ol>
-<li>HTTP/0.9 ：1991年</li>
-<li>HTTP/1.0 ：1996年</li>
-<li>HTTP/1.1 ：1999年</li>
-<li>HTTP/2 ：2015年</li>
-</ol>
-</li>
-<li>HTTP 协议在 TCP/IP 协议栈中的位置<ol>
-<li>从上往下：HTTP(应用层)、TCP(传输层)、IP(网络层)</li>
-<li>目前普遍应用版本 HTTP/1.1 ，正在逐步向 HTTP/2 迁移</li>
-</ol>
-</li>
-<li>HTTP 默认端口号为 80</li>
-<li>HTTPS 默认端口号为 443</li>
-<li>HTTPS 协议：多了加密功能，实现为 SSL、TSL</li>
-</ol>
-<h3 id="四-TCP-IP-协议栈"><a href="#四-TCP-IP-协议栈" class="headerlink" title="四. TCP/IP 协议栈"></a>四. TCP/IP 协议栈</h3><ol>
-<li>ISO 七层模型：<ol>
-<li>应用层</li>
-<li>表示层</li>
-<li>会话层</li>
-<li>传输层</li>
-<li>网络层</li>
-<li>数据链路层</li>
-<li>物理层</li>
-</ol>
-</li>
-<li>五层模型<ol>
-<li>应用层</li>
-<li>传输层</li>
-<li>网络层</li>
-<li>数据链路层</li>
-<li>物理层</li>
-</ol>
-</li>
-<li>四层模型:<ol>
-<li>应用层：为用户提供所需要的各种服务，例如：<code>HTTP</code>、FTP、DNS、SMTP等</li>
-<li>传输层：为应用层实体提供端到端的通信功能，保证数据包的顺序传送及数据的完整性。该层定义了两个主要的协议：传输控制协议 <code>TCP</code> 和用户数据报协议 <code>UDP</code></li>
-<li>网络层：主要解决主机到主机的通信问题，<code>IP</code> 协议是网际互联层最重要的协议</li>
-<li>网络接口层：负责监视数据在主机和网络之间的交换</li>
-</ol>
-</li>
-</ol>
-<h3 id="五-HTTP-的工作过程"><a href="#五-HTTP-的工作过程" class="headerlink" title="五. HTTP 的工作过程"></a>五. HTTP 的工作过程</h3><ol>
-<li>事务：一次 HTTP 操作称为一个事务</li>
-<li>工作过程<ol>
-<li>TCP 层面：首先客户端与服务器需要建立连接，单击某个超级链接，HTTP 开始工作</li>
-<li>HTTP 层面的 Request ：建立连接后，客户端发送一个请求给服务器，请求的格式为：统一资源定位符 URL 、协议版本号。后面是 MIME 信息包括请求修饰符、客户端信息和可能的内容</li>
-<li>HTTP 层面的 Response ：服务器接到请求后，给予相应的响应信息，其格式为一个状态行，包括信息的协议版本号、一个成功或错误的代码，后面是 MIME 信息包括服务器信息、实体信息和可能的内容</li>
-<li>TCP 层面：客户端接收响应内容通过浏览器显示在用户的显示屏上，然后客户端与服务器断开连接</li>
-<li>如果以上过程中某一步发生错误，那么产生的错误信息会返回到客户端</li>
-</ol>
-</li>
-</ol>
-<h3 id="六-请求和响应"><a href="#六-请求和响应" class="headerlink" title="六. 请求和响应"></a>六. 请求和响应</h3><ol>
-<li>HTTP 请求组成：<code>请求行、消息报头、请求正文</code><ol>
-<li>请求行：<code>POST /chapter/user.html HTTP/1.1</code>，即格式为<code>请求方法 UTL 协议版本 回车符\r换行符\n</code></li>
-<li>消息报头(请求头部)：<code>Host: localhost:8080</code>，即格式为<code>头部字段名 : 值 回车符\r换行符\n</code></li>
-<li>请求正文(请求数据)：POST 方式请求的数据放在这里，GET 方式请求的数据放在请求行中(请求正文为空)</li>
-</ol>
-</li>
-<li>HTTP 响应组成：<code>状态行、消息报头、响应正文</code><ol>
-<li>状态行：<code>HTTP/1.1 200 OK</code>，即格式为<code>报文协议及版本 状态码及状态描述</code></li>
-<li>消息报头(响应头)：……(与请求的组成一样，键值对的方式存在)</li>
-<li>响应正文(响应体)：</li>
-</ol>
-</li>
-<li>请求行组成：以一个方法符号开头，后面跟着请求的 URL 和协议的版本</li>
-<li>状态行组成：服务器 HTTP 协议的版本、服务器发回的响应状态代码和状态代码的文本描述</li>
-</ol>
-<h3 id="七-请求方法"><a href="#七-请求方法" class="headerlink" title="七. 请求方法"></a>七. 请求方法</h3><table>
-<thead>
-<tr>
-<th align="left">序号</th>
-<th align="left">方法</th>
-<th align="left">描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">1</td>
-<td align="left">GET</td>
-<td align="left">请求指定的页面信息，并返回实体主体。</td>
-</tr>
-<tr>
-<td align="left">2</td>
-<td align="left">HEAD</td>
-<td align="left">类似于 GET 请求，只不过返回的响应中没有具体的内容，用于获取报头</td>
-</tr>
-<tr>
-<td align="left">3</td>
-<td align="left"><code>POST</code></td>
-<td align="left">向指定资源提交数据进行处理请求（例如提交表单或者上传文件）。数据被包含在请求体中。POST 请求可能会导致新的资源的建立和/或已有资源的修改。</td>
-</tr>
-<tr>
-<td align="left">4</td>
-<td align="left"><code>PUT</code></td>
-<td align="left">从客户端向服务器传送的数据取代指定的文档的内容。</td>
-</tr>
-<tr>
-<td align="left">5</td>
-<td align="left">DELETE</td>
-<td align="left">请求服务器删除指定的页面。</td>
-</tr>
-<tr>
-<td align="left">6</td>
-<td align="left">CONNECT</td>
-<td align="left">HTTP/1.1 协议中预留给能够将连接改为管道方式的代理服务器。</td>
-</tr>
-<tr>
-<td align="left">7</td>
-<td align="left">OPTIONS</td>
-<td align="left">允许客户端查看服务器的性能。</td>
-</tr>
-<tr>
-<td align="left">8</td>
-<td align="left">TRACE</td>
-<td align="left">回显服务器收到的请求，主要用于测试或诊断。</td>
-</tr>
-<tr>
-<td align="left">9</td>
-<td align="left">PATCH</td>
-<td align="left">是对 PUT 方法的补充，用来对已知资源进行局部更新 。</td>
-</tr>
-</tbody></table>
-<h3 id="八-状态码与状态码表"><a href="#八-状态码与状态码表" class="headerlink" title="八. 状态码与状态码表"></a>八. 状态码与状态码表</h3><table>
-<thead>
-<tr>
-<th align="left">分类</th>
-<th align="left">分类描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">1**</td>
-<td align="left">信息，服务器收到请求，需要请求者继续执行操作</td>
-</tr>
-<tr>
-<td align="left">2**</td>
-<td align="left">成功，操作被成功接收并处理</td>
-</tr>
-<tr>
-<td align="left">3**</td>
-<td align="left">重定向，需要进一步的操作以完成请求</td>
-</tr>
-<tr>
-<td align="left">4**</td>
-<td align="left">客户端错误，请求包含语法错误或无法完成请求</td>
-</tr>
-<tr>
-<td align="left">5**</td>
-<td align="left">服务器错误，服务器在处理请求的过程中发生了错误</td>
-</tr>
-</tbody></table>
-<table>
-<thead>
-<tr>
-<th align="left">状态码</th>
-<th align="left">状态码英文名称</th>
-<th align="left">中文描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">100</td>
-<td align="left">Continue</td>
-<td align="left">继续。客户端应继续其请求</td>
-</tr>
-<tr>
-<td align="left">101</td>
-<td align="left">Switching Protocols</td>
-<td align="left">切换协议。服务器根据客户端的请求切换协议。只能切换到更高级的协议，例如，切换到HTTP的新版本协议</td>
-</tr>
-<tr>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left"><code>200</code></td>
-<td align="left">OK</td>
-<td align="left">请求成功。一般用于GET与POST请求</td>
-</tr>
-<tr>
-<td align="left">201</td>
-<td align="left">Created</td>
-<td align="left">已创建。成功请求并创建了新的资源</td>
-</tr>
-<tr>
-<td align="left">202</td>
-<td align="left">Accepted</td>
-<td align="left">已接受。已经接受请求，但未处理完成</td>
-</tr>
-<tr>
-<td align="left">203</td>
-<td align="left">Non-Authoritative Information</td>
-<td align="left">非授权信息。请求成功。但返回的meta信息不在原始的服务器，而是一个副本</td>
-</tr>
-<tr>
-<td align="left">204</td>
-<td align="left">No Content</td>
-<td align="left">无内容。服务器成功处理，但未返回内容。在未更新网页的情况下，可确保浏览器继续显示当前文档</td>
-</tr>
-<tr>
-<td align="left">205</td>
-<td align="left">Reset Content</td>
-<td align="left">重置内容。服务器处理成功，用户终端（例如：浏览器）应重置文档视图。可通过此返回码清除浏览器的表单域</td>
-</tr>
-<tr>
-<td align="left">206</td>
-<td align="left">Partial Content</td>
-<td align="left">部分内容。服务器成功处理了部分GET请求</td>
-</tr>
-<tr>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">300</td>
-<td align="left">Multiple Choices</td>
-<td align="left">多种选择。请求的资源可包括多个位置，相应可返回一个资源特征与地址的列表用于用户终端（例如：浏览器）选择</td>
-</tr>
-<tr>
-<td align="left"><code>301</code></td>
-<td align="left">Moved Permanently</td>
-<td align="left">永久移动。请求的资源已被永久的移动到新URI，返回信息会包括新的URI，浏览器会自动定向到新URI。今后任何新的请求都应使用新的URI代替</td>
-</tr>
-<tr>
-<td align="left"><code>302</code></td>
-<td align="left">Found</td>
-<td align="left">临时移动。与301类似。但资源只是临时被移动。客户端应继续使用原有URI</td>
-</tr>
-<tr>
-<td align="left">303</td>
-<td align="left">See Other</td>
-<td align="left">查看其它地址。与301类似。使用GET和POST请求查看</td>
-</tr>
-<tr>
-<td align="left">304</td>
-<td align="left">Not Modified</td>
-<td align="left">未修改。所请求的资源未修改，服务器返回此状态码时，不会返回任何资源。客户端通常会缓存访问过的资源，通过提供一个头信息指出客户端希望只返回在指定日期之后修改的资源</td>
-</tr>
-<tr>
-<td align="left">305</td>
-<td align="left">Use Proxy</td>
-<td align="left">使用代理。所请求的资源必须通过代理访问</td>
-</tr>
-<tr>
-<td align="left">306</td>
-<td align="left">Unused</td>
-<td align="left">已经被废弃的HTTP状态码</td>
-</tr>
-<tr>
-<td align="left"><code>307</code></td>
-<td align="left">Temporary Redirect</td>
-<td align="left">临时重定向。与302类似。使用GET请求重定向</td>
-</tr>
-<tr>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">400</td>
-<td align="left">Bad Request</td>
-<td align="left">客户端请求的语法错误，服务器无法理解</td>
-</tr>
-<tr>
-<td align="left">401</td>
-<td align="left">Unauthorized</td>
-<td align="left">请求要求用户的身份认证</td>
-</tr>
-<tr>
-<td align="left">402</td>
-<td align="left">Payment Required</td>
-<td align="left">保留，将来使用</td>
-</tr>
-<tr>
-<td align="left">403</td>
-<td align="left">Forbidden</td>
-<td align="left">服务器理解请求客户端的请求，但是拒绝执行此请求</td>
-</tr>
-<tr>
-<td align="left"><code>404</code></td>
-<td align="left">Not Found</td>
-<td align="left">服务器无法根据客户端的请求找到资源（网页）。通过此代码，网站设计人员可设置”您所请求的资源无法找到”的个性页面</td>
-</tr>
-<tr>
-<td align="left">405</td>
-<td align="left">Method Not Allowed</td>
-<td align="left">客户端请求中的方法被禁止</td>
-</tr>
-<tr>
-<td align="left">406</td>
-<td align="left">Not Acceptable</td>
-<td align="left">服务器无法根据客户端请求的内容特性完成请求</td>
-</tr>
-<tr>
-<td align="left">407</td>
-<td align="left">Proxy Authentication Required</td>
-<td align="left">请求要求代理的身份认证，与401类似，但请求者应当使用代理进行授权</td>
-</tr>
-<tr>
-<td align="left">408</td>
-<td align="left">Request Time-out</td>
-<td align="left">服务器等待客户端发送的请求时间过长，超时</td>
-</tr>
-<tr>
-<td align="left">409</td>
-<td align="left">Conflict</td>
-<td align="left">服务器完成客户端的 PUT 请求时可能返回此代码，服务器处理请求时发生了冲突</td>
-</tr>
-<tr>
-<td align="left">410</td>
-<td align="left">Gone</td>
-<td align="left">客户端请求的资源已经不存在。410不同于404，如果资源以前有现在被永久删除了可使用410代码，网站设计人员可通过301代码指定资源的新位置</td>
-</tr>
-<tr>
-<td align="left">411</td>
-<td align="left">Length Required</td>
-<td align="left">服务器无法处理客户端发送的不带Content-Length的请求信息</td>
-</tr>
-<tr>
-<td align="left">412</td>
-<td align="left">Precondition Failed</td>
-<td align="left">客户端请求信息的先决条件错误</td>
-</tr>
-<tr>
-<td align="left">413</td>
-<td align="left">Request Entity Too Large</td>
-<td align="left">由于请求的实体过大，服务器无法处理，因此拒绝请求。为防止客户端的连续请求，服务器可能会关闭连接。如果只是服务器暂时无法处理，则会包含一个Retry-After的响应信息</td>
-</tr>
-<tr>
-<td align="left">414</td>
-<td align="left">Request-URI Too Large</td>
-<td align="left">请求的URI过长（URI通常为网址），服务器无法处理</td>
-</tr>
-<tr>
-<td align="left">415</td>
-<td align="left">Unsupported Media Type</td>
-<td align="left">服务器无法处理请求附带的媒体格式</td>
-</tr>
-<tr>
-<td align="left">416</td>
-<td align="left">Requested range not satisfiable</td>
-<td align="left">客户端请求的范围无效</td>
-</tr>
-<tr>
-<td align="left">417</td>
-<td align="left">Expectation Failed</td>
-<td align="left">服务器无法满足Expect的请求头信息</td>
-</tr>
-<tr>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left"><code>500</code></td>
-<td align="left">Internal Server Error</td>
-<td align="left">服务器内部错误，无法完成请求</td>
-</tr>
-<tr>
-<td align="left">501</td>
-<td align="left">Not Implemented</td>
-<td align="left">服务器不支持请求的功能，无法完成请求</td>
-</tr>
-<tr>
-<td align="left">502</td>
-<td align="left">Bad Gateway</td>
-<td align="left">作为网关或者代理工作的服务器尝试执行请求时，从远程服务器接收到了一个无效的响应</td>
-</tr>
-<tr>
-<td align="left">503</td>
-<td align="left">Service Unavailable</td>
-<td align="left">由于超载或系统维护，服务器暂时的无法处理客户端的请求。延时的长度可包含在服务器的Retry-After头信息中</td>
-</tr>
-<tr>
-<td align="left">504</td>
-<td align="left">Gateway Time-out</td>
-<td align="left">充当网关或代理的服务器，未及时从远端服务器获取请求</td>
-</tr>
-<tr>
-<td align="left">505</td>
-<td align="left">HTTP Version not supported</td>
-<td align="left">服务器不支持请求的HTTP协议的版本，无法完成处理</td>
-</tr>
-</tbody></table>
-]]></content>
-      <categories>
-        <category>网络</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Nodejs</title>
-    <url>/2020/02/02/NodeJS/</url>
-    <content><![CDATA[<h2 id="一-Node-基础"><a href="#一-Node-基础" class="headerlink" title="一. Node 基础"></a>一. Node 基础</h2><h3 id="1-1-为什么学习-Node"><a href="#1-1-为什么学习-Node" class="headerlink" title="1.1 为什么学习 Node?"></a>1.1 为什么学习 Node?</h3><ul>
-<li>IO 优势<ul>
-<li>对于文件读写，Node 采用的是非阻塞 IO</li>
-<li>传统 IO 在读写文件的时候 CPU 来处理，而代码执行也处于等待中，浪费性能</li>
-<li>非阻塞 IO 将读写操作交给 CPU，而代码正常执行，减少等待浪费的性能</li>
-</ul>
-</li>
-<li>应用场景<ul>
-<li>实际应用: webpack/gulp/npm/http-server/json-server（前三者都是 IO 操作，后两者是服务器相关的）</li>
-<li>服务器中负责 IO 读写的中间层服务器(天猫中间层 IO 服务器)</li>
-<li>天猫：用 Njinx 做负载均衡，再后面用 Node 做中间件，最后用 Java</li>
-</ul>
-</li>
-</ul>
-<h3 id="1-2-NodeJS-特点"><a href="#1-2-NodeJS-特点" class="headerlink" title="1.2 NodeJS 特点"></a>1.2 NodeJS 特点</h3><ul>
-<li>NodeJS 移植了 chrome V8 引擎，解析和执行代码机制和浏览器 js 相同</li>
-<li>NodeJS 沿用了 JavaScript 语法、另外扩展了自己需要的功能</li>
-<li>总结: NodeJS 是一门后端语言，其具备操作文件的能力，可以具备服务器的创建和操作能力。其语法是 JavaScript 语法，代码运行在 chrome V8 引擎之上</li>
-</ul>
-<h3 id="1-3-内置对象介绍"><a href="#1-3-内置对象介绍" class="headerlink" title="1.3 内置对象介绍"></a>1.3 内置对象介绍</h3><h4 id="1-3-1-分类"><a href="#1-3-1-分类" class="headerlink" title="1.3.1 分类"></a>1.3.1 分类</h4><ul>
-<li>全局对象: 何时何处都能访问</li>
-<li>核心对象: 向系统索要，引入即可使用</li>
-<li>自定义对象: 按路径引入即可</li>
-</ul>
-<h4 id="1-3-2-process（全局对象）"><a href="#1-3-2-process（全局对象）" class="headerlink" title="1.3.2 process（全局对象）"></a>1.3.2 process（全局对象）</h4><ul>
-<li><p>每个系统的环境变量几乎都不一样，可以利用环境变量中的具体某个特定的值来区分不同的机器</p>
-</li>
-<li><p><code>process.env</code>是一个对象，我们可以通过<code>process.env.属性名</code>来获取具体的环境变量值</p>
-</li>
-<li><p>应用场景：设置一个特定的环境变量，以达到简单区分不同的机器，从而针对生产/开发环境运行不同的效果</p>
-</li>
-<li><p><code>process.argv</code>获取命令行参数，格式为<code>[node绝对路径,文件的绝对路径,参数1,...,参数n]</code></p>
-</li>
-<li><p>简单代码</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 系统环境变量中存在 MY_TEST = &#x27;libin&#x27;</span></span><br><span class="line"><span class="keyword">let</span> stuOrTeacher = process.env.MY_TEST;</span><br><span class="line"><span class="comment">// 判断是否等于 libin</span></span><br><span class="line"><span class="keyword">if</span> (stuOrTeacher === <span class="string">&quot;libin&quot;</span>) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&quot;学生端&quot;</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&quot;教师端&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 命令行加法计算器</span></span><br><span class="line"><span class="comment">// 获取数组的2、3索引对应的元素</span></span><br><span class="line"><span class="keyword">let</span> num1 = process.argv[<span class="number">2</span>] - <span class="number">0</span>; <span class="comment">// 字符串转数字的另一种写法</span></span><br><span class="line"><span class="keyword">let</span> num2 = <span class="built_in">parseInt</span>(process.argv[<span class="number">3</span>]); <span class="comment">// parseInt也ok</span></span><br><span class="line"><span class="keyword">let</span> sum = num1 + num2;</span><br><span class="line"><span class="comment">// 输出（卡顿输出）（定时输出）</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&quot;计算中.....&quot;</span>);</span><br><span class="line"><span class="comment">// 2秒后输出</span></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&quot;结果为:&quot;</span> + sum);</span><br><span class="line">&#125;, <span class="number">2000</span>);</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h4 id="1-3-3-filename-dirname（全局对象）"><a href="#1-3-3-filename-dirname（全局对象）" class="headerlink" title="1.3.3 filename/dirname（全局对象）"></a>1.3.3 filename/dirname（全局对象）</h4><ul>
-<li><code>__filename</code>获取当前运行文件的目录，绝对路径</li>
-<li><code>__dirname</code>当前运行文件的绝对路径</li>
-</ul>
-<h4 id="1-3-4-核心对象-path"><a href="#1-3-4-核心对象-path" class="headerlink" title="1.3.4 核心对象 path"></a>1.3.4 核心对象 path</h4><ul>
-<li><p><code>const path = require(&#39;path&#39;);</code> ==&gt; 引入核心对象（存在于 Node.exe 中）</p>
-</li>
-<li><p>路径 -&gt; 在处理路径的时候很擅长，但是，其不负责判断路径是否存在文件</p>
-</li>
-<li><p><code>path.join(__dirname,&#39;a&#39;,&#39;b&#39;);</code> ==&gt; 拼接并修正路径，<code>__dirname</code>代表当前文件路径</p>
-</li>
-<li><p><code>path.resovle(&#39;./xxx&#39;);</code> ==&gt; 相对路径转绝对路径（且修正）</p>
-</li>
-<li><p><code>let pathObj = path.parse(mypath);</code> ==&gt; 接收一个合法的路径字符串，并将其转换成一个对象</p>
-</li>
-<li><p><code>let str = path.format(pathObj);</code> ==&gt; 接收一个路径对象，转换成一个字符串路径</p>
-</li>
-<li><p>总结：path 对象是方便我们操作路径的</p>
-<ul>
-<li>对于获取来讲: parse 解析成对象，format 转换成字符串，join 拼接并修正</li>
-<li>对于修改路径对象来讲：用 base 属性更改，不能用 name 和 ext 更改，因为 name 和 ext 是基于 base 的</li>
-</ul>
-</li>
-<li><p>简单代码</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&quot;path&quot;</span>); <span class="comment">// 获取 path 对象</span></span><br><span class="line"><span class="keyword">let</span> myPath = path.join(__dirname, <span class="string">&quot;jack&quot;</span>, <span class="string">&quot;//dfa////&quot;</span>, <span class="string">&quot;test.txt&quot;</span>); <span class="comment">// 拼接并修正路径</span></span><br><span class="line"><span class="built_in">console</span>.log(myPath); <span class="comment">// ...(省略)\code\jack\dfa\test.txt ==&gt; 自动修正了&#x27;//dfa////&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> pathObj = path.parse(myPath);</span><br><span class="line"><span class="built_in">console</span>.log(pathObj);</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">  &#123;</span></span><br><span class="line"><span class="comment">    root: &#x27;E:\\&#x27;,</span></span><br><span class="line"><span class="comment">    dir: &#x27;E:\\LIFE\\code\\jack\\dfa&#x27;,</span></span><br><span class="line"><span class="comment">    base: &#x27;test.txt&#x27;, // 该属性可以用于修改文件名和后缀</span></span><br><span class="line"><span class="comment">    ext: &#x27;.txt&#x27;,</span></span><br><span class="line"><span class="comment">    name: &#x27;test&#x27;</span></span><br><span class="line"><span class="comment">  &#125;</span></span><br><span class="line"><span class="comment">  */</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">pathObj.base = <span class="string">&quot;demo.js&quot;</span>;</span><br><span class="line">myPath = path.format(pathObj);</span><br><span class="line"><span class="built_in">console</span>.log(myPath); <span class="comment">// E:\LIFE\code\jack\dfa\demo.js</span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h3 id="1-4-模块"><a href="#1-4-模块" class="headerlink" title="1.4 模块"></a>1.4 模块</h3><ul>
-<li>弊端<ul>
-<li>在 js 中要涉及到逻辑，还要在 html 中，为逻辑对象考虑引用顺序</li>
-<li>所有对象默认都是全局对象，命名冲突</li>
-</ul>
-</li>
-<li>Commonjs 规范</li>
-<li>一个文件就是一个模块<ul>
-<li>导入用 <code>require(&#39;./xxx.js&#39;);</code></li>
-<li>导出用 <code>module.exports = xxx;</code></li>
-<li>在每一个模块内声明的变量属于模块内的作用域</li>
-</ul>
-</li>
-</ul>
-<h4 id="1-4-1-fs-文件模块"><a href="#1-4-1-fs-文件模块" class="headerlink" title="1.4.1 fs 文件模块"></a>1.4.1 fs 文件模块</h4><ul>
-<li>文件读写</li>
-<li>其他功能</li>
-<li>扩展介绍</li>
-</ul>
-<h4 id="1-4-2-操作文件对象"><a href="#1-4-2-操作文件对象" class="headerlink" title="1.4.2 操作文件对象"></a>1.4.2 操作文件对象</h4><ul>
-<li><p>IO：I 即 input ==&gt; 输入，O 即 output ==&gt; 输出，文件的操作就是 IO</p>
-</li>
-<li><p>Node 中有两种 IO 的操作</p>
-<ul>
-<li>同步 IO ：一行代码（读文件）不执行完毕，后续代码不能执行</li>
-<li>异步 IO（建议）：一行代码（读写文件）不执行完毕（正在读写中…），后续代码也可以执行</li>
-</ul>
-</li>
-<li><p>同步和异步 IO 的区别: 同步 IO 会阻塞后续代码执行，异步 IO 不会阻塞后续代码执行</p>
-</li>
-<li><p>简单代码</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 引入核心对象 fs</span></span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&quot;fs&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步读文件：fs.readFile(&#x27;路径&#x27;,&#x27;编码&#x27;,callback);</span></span><br><span class="line">fs.readFile(<span class="string">&quot;./a.txt&quot;</span>, <span class="string">&quot;utf8&quot;</span>, <span class="function">(<span class="params">err, data</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// err 有两个值：Error||null</span></span><br><span class="line">  <span class="keyword">if</span> (err) <span class="keyword">throw</span> err; <span class="comment">// 抛到控制台显示异常信息</span></span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&quot;读取成功：&quot;</span> + data);</span><br><span class="line">  <span class="comment">// 如果不写 &#x27;utf8&#x27; 参数，则默认打印出文本的十六进制表示形式，想要正常显示可以使用 data.toString(&#x27;utf8&#x27;)</span></span><br><span class="line">  <span class="comment">// data.toString(&#x27;utf8&#x27;)中，不写参数默认使用 &#x27;utf8&#x27; ，注意是 &#x27;utf8&#x27; 而不是 &#x27;utf-8&#x27;</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步写文件：fs.writeFile(path,data||string,&#123;flag:&#x27;a&#x27;&#125;,callback);</span></span><br><span class="line"><span class="comment">// &#123;flag:&#x27;a&#x27;&#125; 参数不写时，将源文件内容清空，替换为自己要写的数据；该参数存在时表示进行数据的追加</span></span><br><span class="line">fs.writeFile(<span class="string">&quot;./a.txt&quot;</span>, <span class="string">&quot;天地不仁&quot;</span>, &#123; <span class="attr">flag</span>: <span class="string">&quot;a&quot;</span> &#125;, <span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (err) <span class="keyword">throw</span> err;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&quot;写成功&quot;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步写文件方式二：fs.appendFile</span></span><br><span class="line">fs.appendFile(<span class="string">&quot;./a.txt&quot;</span>, <span class="string">&quot;小猪佩奇&quot;</span>, <span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (err) <span class="keyword">throw</span> err;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 引入核心对象</span></span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&quot;fs&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 同步读文件：（有异常catch）</span></span><br><span class="line"><span class="keyword">let</span> data = fs.readFileSync(<span class="string">&quot;./a.txt&quot;</span>, <span class="string">&quot;utf8&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 同步写文件：写入到 b.txt（有异常catch）</span></span><br><span class="line">fs.writeFileSync(<span class="string">&quot;./b.txt&quot;</span>, data);</span><br><span class="line"><span class="comment">// b.txt 不存在时创建此文件且将数据拷贝过去；b.txt 存在时清空内容将数据拷贝过去</span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h3 id="1-5-nginx-负载均衡"><a href="#1-5-nginx-负载均衡" class="headerlink" title="1.5 nginx 负载均衡"></a>1.5 nginx 负载均衡</h3><p>（暂时放过。。。略）</p>
-<hr>
-<h2 id="二-包管理与-HTTP-协议"><a href="#二-包管理与-HTTP-协议" class="headerlink" title="二. 包管理与 HTTP 协议"></a>二. 包管理与 HTTP 协议</h2><h3 id="2-1-练习：遍历文件夹下的文件"><a href="#2-1-练习：遍历文件夹下的文件" class="headerlink" title="2.1 练习：遍历文件夹下的文件"></a>2.1 练习：遍历文件夹下的文件</h3><h4 id="2-1-1-代码"><a href="#2-1-1-代码" class="headerlink" title="2.1.1 代码"></a>2.1.1 代码</h4><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 获取核心对象</span></span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&quot;path&quot;</span>);</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&quot;fs&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过命令行参数的方式接受路径并修正</span></span><br><span class="line"><span class="keyword">let</span> inputPath = path.resolve(process.argv[<span class="number">2</span>]);</span><br><span class="line"></span><br><span class="line"><span class="comment">// fs.accessSync(path[, mode]) || fs.access(path[, mode], callback) ：检查当前目录中是否存在该文件</span></span><br><span class="line">fs.access(inputPath, fs.constants.F_OK, <span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (err) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;路径不存在&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">myReadFile</span>(<span class="params">dir</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// fs.statSync(path[, options]) ==&gt; 返回: &lt;fs.Stats&gt;</span></span><br><span class="line">    <span class="keyword">let</span> state = fs.statSync(dir);</span><br><span class="line">    <span class="keyword">if</span> (state.isFile()) &#123;</span><br><span class="line">      <span class="comment">// 此处为递归的出口（走进这里则不再走递归了）</span></span><br><span class="line">      <span class="built_in">console</span>.log(dir);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (state.isDirectory()) &#123;</span><br><span class="line">      <span class="comment">// fs.readdirSync(path[, options]) ==&gt; 方法将返回一个包含&#x27;指定目录下所有文件名称&#x27;的数组对象</span></span><br><span class="line">      <span class="keyword">let</span> files = fs.readdirSync(dir);</span><br><span class="line">      files.forEach(<span class="function"><span class="params">file</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 将路径拼接后递归调用</span></span><br><span class="line">        myReadFile(path.join(dir, file));</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(e.message);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">myReadFile(inputPath);</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-1-3-总结"><a href="#2-1-3-总结" class="headerlink" title="2.1.3 总结"></a>2.1.3 总结</h4><ul>
-<li>如果函数中每次必然要走递归，则需要通过 return 结束递归</li>
-<li>如果函数中是判断着走递归，则可以通过进入到不走递归的分支来结束递归</li>
-<li><code>fs.accessSync(path[, mode]) || fs.access(path[, mode], callback)</code> ：检查当前目录中是否存在该文件</li>
-<li><code>fs.statSync(path[, options])</code> ==&gt; 返回: &lt;fs.Stats&gt;</li>
-<li><code>fs.readdirSync(path[, options])</code> ==&gt; 方法将返回一个包含’指定目录下所有文件名称’的数组对象</li>
-</ul>
-<h3 id="2-2-包"><a href="#2-2-包" class="headerlink" title="2.2 包"></a>2.2 包</h3><h4 id="2-2-1-包的理解"><a href="#2-2-1-包的理解" class="headerlink" title="2.2.1 包的理解"></a>2.2.1 包的理解</h4><ol>
-<li>多个文件，有效的被组织与管理的一个单位</li>
-<li>留一个入口（三种可能）<ul>
-<li>package.json 中的 “main” 对应的值</li>
-<li>index.js</li>
-<li>和包名一致</li>
-</ul>
-</li>
-<li>包就是一个文件夹</li>
-</ol>
-<h4 id="2-2-2-包的区别"><a href="#2-2-2-包的区别" class="headerlink" title="2.2.2 包的区别"></a>2.2.2 包的区别</h4><ol>
-<li>凡是我们下载到项目的 node_modules 中的包，基本都是拿来做 require(‘xxx’) 调用其函数和属性</li>
-<li>还有一类属于工具性的包（全局命令行工具)<ol>
-<li>全局工具哪个目录都可以通过命令行启动，通过任意目录启动该工具，给相对路径传递任意目录的文件给该工具</li>
-<li>项目中的包，部分具备命令行工具的能力，需要命令行环境变量的支持</li>
-</ol>
-</li>
-</ol>
-<h4 id="2-2-3-npm-yarn"><a href="#2-2-3-npm-yarn" class="headerlink" title="2.2.3 npm || yarn"></a>2.2.3 npm || yarn</h4><ul>
-<li><code>package.json</code>：包描述文件（在当前目录下使用<code>npm init [-y]</code> ==&gt; 会根据当前的文件夹来自动生成，注意文件夹名只能是小写英文字母）</li>
-<li>查看可下载包的版本：<code>npm info jquery</code></li>
-<li>下载包：<code>npm install jquery@3.4.1 --save</code>（install 可以简写成 i，–save 可以简写成 -S）<ul>
-<li><code>--save</code>：记录依赖（package.json 中的”dependencies”对应的属性值存储的都是依赖），不小心误删后可以恢复</li>
-<li>根据依赖恢复：进入当前的包目录（package.json 所在目录），输入命令<code>npm install</code>或者<code>npm i</code>即可根据依赖自动恢复被删除的包</li>
-</ul>
-</li>
-<li>删除包：<code>npm uninstall jquery@3.4.1 --save</code>（uninstall 可以简写成 un）</li>
-<li>查看包文档（浏览器打开）：<code>npm docs jquery</code></li>
-<li>查看全局包的下载路径：<code>npm root -g</code>（-g 表示全局）</li>
-<li>安装全局命令行工具：<code>npm install http-server -g</code></li>
-<li>卸载全局命令行工具：<code>npm uninstall http-server -g</code>（通过看目录发现卸载的不完全）</li>
-<li>修改全局的存储路径<ul>
-<li><code>npm config set prefix &quot;D:\xxx&quot;</code></li>
-<li>完成之后设置 path 环境变量</li>
-<li>重启命令行工具后使用</li>
-</ul>
-</li>
-<li>nrm 和 cnpm 的区别：cnpm 只能从 taobao 的镜像源下载，nrm 可以在多个镜像源之间进行切换</li>
-</ul>
-]]></content>
-      <categories>
-        <category>nodejs</category>
-      </categories>
-  </entry>
-  <entry>
     <title>NFS 服务部署</title>
     <url>/2020/12/14/NFS%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2/</url>
     <content><![CDATA[<h3 id="一-存储服务初识"><a href="#一-存储服务初识" class="headerlink" title="一. 存储服务初识"></a>一. 存储服务初识</h3><p><strong>NFS 存储服务概念说明</strong></p>
@@ -948,639 +188,59 @@
       </categories>
   </entry>
   <entry>
-    <title>Vue</title>
-    <url>/2020/02/02/Vue/</url>
-    <content><![CDATA[<ol>
-<li><p>点击循环切换：</p>
-<ul>
-<li>使用 <code>!</code> ：<code>&lt;button v-on:click = &#39;isRed = !isRed&#39;&gt;切换&lt;/button&gt;</code></li>
-<li>使用方法：<ul>
-<li><code>&lt;button v-on:click = &#39;changeColor&#39;&gt;切换&lt;/button&gt;</code> </li>
-<li><code>methods:&#123; changeColor()&#123; this.isRed = !isRed&#125;&#125;</code></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>单向数据流：data ==&gt; view</p>
-</li>
-<li><p>只有表单控件里才能实现双向数据绑定</p>
-</li>
-<li><p>双向数据绑定的内部原理：v-bind:value 和 v-on:input，还有 definedProperty（渲染原理）</p>
-</li>
-<li><p>组件首字母大写</p>
-</li>
-<li><p>如果是组件，则组件中的 data 必须是函数，不能是对象，即必须使用 date(){ return {} } 或者 data : function(){ return {} }</p>
-</li>
-<li><p><code>属性名=属性值</code> ==&gt; 可以简写为<code>属性名</code></p>
-</li>
-<li><p><code>v-bind:</code> 可以简写成<code>:</code>，即<code>v-bind:class=&quot;&quot;</code> ==&gt; <code>:class=&quot;&quot;</code></p>
-</li>
-<li><p><code>v-on:click=&quot;&quot;</code> ==&gt; <code>@click=&quot;&quot;</code></p>
-</li>
-<li></li>
-</ol>
-]]></content>
-      <categories>
-        <category>vue</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/2020/01/02/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
-      <categories>
-        <category>others</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>jquery</title>
-    <url>/2020/02/02/jQuery/</url>
-    <content><![CDATA[<ol>
-<li>事件绑定<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;ul&quot;</span>).on(<span class="string">&quot;click&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;); <span class="comment">// 普通事件绑定</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).on(<span class="string">&quot;click&quot;</span>, <span class="string">&quot;li&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  $(<span class="built_in">this</span>).html();</span><br><span class="line">&#125;); <span class="comment">// 事件委托，当子元素是 li 的时候触发事件，使用 $(this) 获取到的是源事件jQuery对象</span></span><br></pre></td></tr></table></figure></li>
-<li>事件解绑<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;ul&quot;</span>).off(); <span class="comment">// 解绑 ul 的所有事件</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).off(<span class="string">&quot;click&quot;</span>); <span class="comment">// 解绑 ul 的点击事件</span></span><br></pre></td></tr></table></figure></li>
-<li>jQuery 事件对象就是对 JS 事件对象的一个封装，处理了兼容性</li>
-<li>jQuery 的隐式迭代会对所有的 DOM 对象设置相同的值，但是如果我们需要给每一个对象设置不同的值的时候，就需要自己进行迭代<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;li&quot;</span>).each(<span class="function">(<span class="params">index, ele</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(ele.innerHTML); <span class="comment">// 注意 ele 是 DOM 对象</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
-<li>设置或者获取垂直/水平滚动条的距离<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(<span class="built_in">window</span>).scrollTop(<span class="string">&quot;100&quot;</span>); <span class="comment">// 垂直滚动条跳到100的位置</span></span><br><span class="line">$(<span class="built_in">window</span>).scrollLeft(); <span class="comment">// 获取水平滚动条的位置</span></span><br></pre></td></tr></table></figure></li>
-<li>获取元素位置<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//获取元素距离document的位置,返回值为对象：&#123;left:100, top:100&#125;</span></span><br><span class="line">$(selector).offset();</span><br><span class="line"><span class="comment">//获取相对于其最近的有定位的父元素的位置</span></span><br><span class="line">$(selector).position();</span><br></pre></td></tr></table></figure></li>
-<li>html() 与 text() 方法相当于 JS 的 innerHTML 属性和 innerText 属性</li>
-<li>创建节点<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;&lt;span&gt;这是一个span元素&lt;/span&gt;&quot;</span>);</span><br></pre></td></tr></table></figure></li>
-<li>追加节点<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 实参列表可以一次传多个参数</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).append(<span class="string">&quot;&lt;span&gt;哈哈哈&lt;/span&gt;&quot;</span>); <span class="comment">// 在子元素的最后追加 span 标签</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).prepend(<span class="string">&quot;&lt;span&gt;哈哈哈&lt;/span&gt;&quot;</span>); <span class="comment">// 在第一个子元素之前追加 span 标签</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).before(<span class="string">&quot;&lt;span&gt;哈哈哈&lt;/span&gt;&quot;</span>); <span class="comment">// 在 ul 之前追加 span ，span 和 ul 是同级的</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).after(<span class="string">&quot;&lt;span&gt;哈哈哈&lt;/span&gt;&quot;</span>); <span class="comment">// 在 ul 之后追加 span ，span 和 ul 是同级的</span></span><br></pre></td></tr></table></figure></li>
-<li>清空节点和删除节点<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(“div”).empty(); <span class="comment">// empty：清空指定节点的所有元素，自身保留(清理门户)</span></span><br><span class="line">$(“div”).remove(); <span class="comment">// remove：相比于 empty，自身也删除（自杀）</span></span><br></pre></td></tr></table></figure></li>
-<li>操作属性<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;ul&quot;</span>).attr(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;haha&quot;</span>); <span class="comment">// 给 ul 标签添加属性 name=&quot;haha&quot;</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).attr(&#123;</span><br><span class="line">  <span class="comment">// 添加多个属性，参数是一个对象</span></span><br><span class="line">  name: <span class="string">&quot;linus&quot;</span>,</span><br><span class="line">  info: <span class="string">&quot;hello&quot;</span></span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 获取属性</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).attr(<span class="string">&quot;name&quot;</span>);</span><br><span class="line"><span class="comment">// 移除属性</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).removeAttr(<span class="string">&quot;name&quot;</span>);</span><br></pre></td></tr></table></figure></li>
-<li>class 操作<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 添加类名</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).addClass(<span class="string">&quot;clear-float&quot;</span>);</span><br><span class="line"><span class="comment">// 移除类名</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).removeClass(<span class="string">&quot;clear-float&quot;</span>);</span><br><span class="line"><span class="comment">// 判断是否有某个类名</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).hasClass(<span class="string">&quot;clear-float&quot;</span>);</span><br><span class="line"><span class="comment">// 切换类名，有则删除，没有添加</span></span><br><span class="line">$(<span class="string">&quot;ul&quot;</span>).toggleClass(<span class="string">&quot;clear-float&quot;</span>);</span><br></pre></td></tr></table></figure></li>
-<li>css 操作<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;ul&quot;</span>).css(<span class="string">&quot;background&quot;</span>, <span class="string">&quot;gray&quot;</span>); <span class="comment">// 此为设置单个样式，想要设置多个样式参数传一个对象即可</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">存在隐式迭代：</span></span><br><span class="line"><span class="comment">1. 设置操作的时候，如果是多个元素，那么给所有的元素设置相同的值</span></span><br><span class="line"><span class="comment">2. 获取操作的时候，如果是多个元素，那么只会返回第⼀个元素的值。</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure></li>
-<li>选择器<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;css选择器&quot;</span>);</span><br><span class="line"><span class="comment">// 比较特殊的过滤选择器先记住一个：</span></span><br><span class="line">$(<span class="string">&quot;li:eq(0)&quot;</span>).css(<span class="string">&quot;color&quot;</span>, <span class="string">&quot;pink&quot;</span>); <span class="comment">// 选中的是第一个 li ，索引从 0 开始</span></span><br></pre></td></tr></table></figure></li>
-<li>jQuery 对象与 DOM 对象的互相转换<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 声明 jQuery 对象</span></span><br><span class="line"><span class="keyword">var</span> $obj = $(domObj);</span><br><span class="line"><span class="comment">// jQuery 转 DOM</span></span><br><span class="line"><span class="keyword">var</span> li = $li[<span class="number">0</span>]; <span class="comment">// 将 jQuery 对象中的第一个 li 取出来，该过程返回的是一个 DOM 对象</span></span><br><span class="line"><span class="comment">// DOM 转 jQuery</span></span><br><span class="line">$(DOM对象); <span class="comment">// 比如 $(document).ready(function()&#123;&#125;)中的 $(document) 就是 DOM 转 jQuery</span></span><br></pre></td></tr></table></figure></li>
-<li>入口函数<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* jQuery ⼊⼝函数与 js ⼊⼝函数</span></span><br><span class="line"><span class="comment">1. JavaScript的入口函数要等到页面中所有资源（包括图片、文件）加载完成才开始执行。</span></span><br><span class="line"><span class="comment">2. jQuery的入口函数只会等待文档树加载完成就开始执行，并不会等待图片、文件的加载。</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="comment">// jQuery 入口函数的写法：</span></span><br><span class="line"><span class="comment">//第一种写法</span></span><br><span class="line">$(<span class="built_in">document</span>).ready(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;);</span><br><span class="line"><span class="comment">//第二种写法</span></span><br><span class="line">$(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;);</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>web</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>jsonp</title>
-    <url>/2020/02/02/jsonp/</url>
-    <content><![CDATA[<h5 id="解决跨域问题的几种办法"><a href="#解决跨域问题的几种办法" class="headerlink" title="解决跨域问题的几种办法"></a>解决跨域问题的几种办法</h5><ol>
-<li>Flash</li>
-<li>服务器代理中转</li>
-<li>Jsonp</li>
-<li>document.domain(针对基础域名相同的情况)</li>
-</ol>
-<h5 id="JSONP-原理"><a href="#JSONP-原理" class="headerlink" title="JSONP 原理"></a>JSONP 原理</h5><ol>
-<li>Web 页面上用<code>&lt;script&gt;</code> 引入 js 文件时则不受是否跨域的影响（不仅如此，我们还发现凡是拥有”src”这个属性的标签都拥有跨域的能力，比如<code>&lt;script&gt;、&lt;img&gt;、&lt;iframe&gt;</code>）</li>
-<li>于是我们把数据放到服务器上，并且数据为 json 形式（因为 js 可以轻松处理 json 数据）</li>
-<li>因为我们无法监控通过<code>&lt;script&gt;</code>的 src 属性是否把数据获取完成，所以我们需要做一个处理。</li>
-<li>实现定义好处理跨域获取数据的函数，如 <code>function doJSON（data）&#123;&#125;</code>。</li>
-<li>用 src 获取数据的时候添加一个参数 <code>cb=&#39;doJSON&#39;</code> (服务端会根据参数 cb 的值返回 对应的内容) 此内容为以 cb 对应的值 doJSON 为函数真实要传递的数据为函数的参数的一串字符 如 <code>doJSON(&#39;数据&#39;)</code></li>
-<li>服务器代理中转：因为没有涉及到浏览器，所以没有同源的说法</li>
-<li>jsonp 的核心：src 可以跨域（不受同源策略的影响）</li>
-</ol>
-<h5 id="练习：实现百度搜索框"><a href="#练习：实现百度搜索框" class="headerlink" title="练习：实现百度搜索框"></a>练习：实现百度搜索框</h5><figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Document<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span></span><br><span class="line">      * &#123;</span><br><span class="line">        padding: 0;</span><br><span class="line">        margin: 0;</span><br><span class="line">      &#125;</span><br><span class="line"><span class="css">      <span class="selector-class">.content</span> &#123;</span></span><br><span class="line">        position: absolute;</span><br><span class="line">        top: 50%;</span><br><span class="line">        left: 50%;</span><br><span class="line">        margin-left: -150px;</span><br><span class="line">        margin-top: -150px;</span><br><span class="line">        width: 300px;</span><br><span class="line">        height: 300px;</span><br><span class="line">        border: 2px solid pink;</span><br><span class="line">      &#125;</span><br><span class="line"><span class="css">      <span class="selector-class">.content</span> <span class="selector-tag">input</span> &#123;</span></span><br><span class="line">        position: absolute;</span><br><span class="line">        top: 50px;</span><br><span class="line">        left: 50%;</span><br><span class="line">        margin-left: -75px;</span><br><span class="line">        width: 150px;</span><br><span class="line">        height: 30px;</span><br><span class="line">      &#125;</span><br><span class="line">      ul &#123;</span><br><span class="line">        display: none;</span><br><span class="line">        position: absolute;</span><br><span class="line">        border: 1px solid greenyellow;</span><br><span class="line">        width: 152px;</span><br><span class="line">        top: 84px;</span><br><span class="line">        left: 75px;</span><br><span class="line"><span class="css">        <span class="comment">/* height: 50px; */</span></span></span><br><span class="line">      &#125;</span><br><span class="line">      ul li &#123;</span><br><span class="line">        list-style: none;</span><br><span class="line">        margin: 5px 15px;</span><br><span class="line">      &#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;content&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;text&quot;</span> <span class="attr">name</span>=<span class="string">&quot;&quot;</span> <span class="attr">id</span>=<span class="string">&quot;&quot;</span> /&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">ul</span>&gt;</span><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript">      <span class="keyword">var</span> input = <span class="built_in">document</span>.getElementsByTagName(<span class="string">&quot;input&quot;</span>)[<span class="number">0</span>];</span></span><br><span class="line"><span class="javascript">      <span class="keyword">var</span> ul = <span class="built_in">document</span>.getElementsByTagName(<span class="string">&quot;ul&quot;</span>)[<span class="number">0</span>];</span></span><br><span class="line"><span class="javascript">      input.onkeyup = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="keyword">var</span> keyWord = input.value;</span></span><br><span class="line"><span class="javascript">        <span class="keyword">var</span> script = <span class="built_in">document</span>.createElement(<span class="string">&quot;script&quot;</span>);</span></span><br><span class="line">        script.src =</span><br><span class="line"><span class="javascript">          <span class="string">&quot;https://www.baidu.com/sugrec?prod=pc&amp;wd=&quot;</span> +</span></span><br><span class="line">          keyWord +</span><br><span class="line"><span class="javascript">          <span class="string">&quot;&amp;cb=&quot;</span> +</span></span><br><span class="line"><span class="javascript">          <span class="string">&quot;doJson&quot;</span>;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">document</span>.body.appendChild(script);</span></span><br><span class="line">        script.remove();</span><br><span class="line">      &#125;;</span><br><span class="line"></span><br><span class="line"><span class="javascript">      <span class="function"><span class="keyword">function</span> <span class="title">doJson</span>(<span class="params">data</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">console</span>.log(data);</span></span><br><span class="line"><span class="javascript">        <span class="keyword">var</span> dataList = data.g;</span></span><br><span class="line"><span class="javascript">        ul.innerText = <span class="string">&quot;&quot;</span>;</span></span><br><span class="line"><span class="javascript">        <span class="keyword">if</span> (dataList) &#123;</span></span><br><span class="line"><span class="javascript">          ul.style.display = <span class="string">&quot;block&quot;</span>;</span></span><br><span class="line"><span class="javascript">          dataList.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">ele, index</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">            <span class="keyword">var</span> li = <span class="built_in">document</span>.createElement(<span class="string">&quot;li&quot;</span>);</span></span><br><span class="line"><span class="javascript">            <span class="keyword">var</span> a = <span class="built_in">document</span>.createElement(<span class="string">&quot;a&quot;</span>);</span></span><br><span class="line">            a.innerText = ele.q;</span><br><span class="line"><span class="javascript">            a.href = <span class="string">&quot;https://www.baidu.com/s?wd=&quot;</span> + ele.q;</span></span><br><span class="line">            li.appendChild(a);</span><br><span class="line">            ul.appendChild(li);</span><br><span class="line">          &#125;);</span><br><span class="line"><span class="javascript">        &#125; <span class="keyword">else</span> &#123;</span></span><br><span class="line"><span class="javascript">          ul.style.display = <span class="string">&quot;none&quot;</span>;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>web</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>this相关问题</title>
-    <url>/2020/12/02/%E4%B8%8Ethis%E7%9B%B8%E5%85%B3%E7%9A%84%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h3 id="一-ES5-中的-this-指向问题分析"><a href="#一-ES5-中的-this-指向问题分析" class="headerlink" title="一. ES5 中的 this 指向问题分析"></a>一. ES5 中的 this 指向问题分析</h3><ol>
-<li>记住一句话即可：<code>this永远指向最后调用它的那个对象</code></li>
-<li>要理解的就是<code>调用</code>这个字，对于一个函数来说，如果直接执行，即<code>method();</code>，那么相当于<code>window.method();</code>，相应的一些属性值应该找<code>window</code>上的。如果是调用执行，即<code>obj.method();</code>，那么相应的属性值应该在<code>obj</code>中找，<code>obj</code>中没有则返回<code>undefined</code>，而不是去<code>window</code>上往上找</li>
-<li>同时需要注意执行才行，例如<code>var obj = &#123; test:function()&#123;&#125; &#125; ; var f = obj.test ; f();</code>，这种情况下在赋值的时候没有执行，所以最后看的还是 <code>f</code>的执行环境，即相应的属性值在<code>window</code>上找</li>
-</ol>
-<h3 id="二-改变-this-指向的方式"><a href="#二-改变-this-指向的方式" class="headerlink" title="二. 改变 this 指向的方式"></a>二. 改变 this 指向的方式</h3><ol>
-<li>使用 ES6 的箭头函数</li>
-<li>在函数内部使用 <code>_this = this</code></li>
-<li>使用<code>apply</code>、<code>call</code>、<code>bind</code>方法</li>
-<li>通过<code>new</code>实例化一个对象</li>
-</ol>
-<h3 id="三-在函数内部使用-this-this"><a href="#三-在函数内部使用-this-this" class="headerlink" title="三. 在函数内部使用 _this = this"></a>三. 在函数内部使用 <code>_this = this</code></h3><ol>
-<li><p>原理：将调用这个函数的对象保存在变量<code>_this</code>中，然后在这个函数中用<code>_this</code>代替<code>this</code>即可</p>
-</li>
-<li><p>代码：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> name = <span class="string">&quot;windowsName&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> a = &#123;</span><br><span class="line">    name : <span class="string">&quot;Cherry&quot;</span>,</span><br><span class="line">    func1: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="built_in">this</span>.name);     </span><br><span class="line">    &#125;,</span><br><span class="line">    func2: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> _this = <span class="built_in">this</span>; <span class="comment">// 将 a 保存到 _this 中</span></span><br><span class="line">        <span class="built_in">setTimeout</span>( <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            _this.func1(); <span class="comment">// 相当于 a.func1();</span></span><br><span class="line">        &#125;,<span class="number">100</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">a.func2();       <span class="comment">// Cherry</span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<h3 id="四-call-方法、apply-、bind-方法的使用与分析"><a href="#四-call-方法、apply-、bind-方法的使用与分析" class="headerlink" title="四. call() 方法、apply() 、bind() 方法的使用与分析"></a>四. call() 方法、apply() 、bind() 方法的使用与分析</h3><ol>
-<li><code>call()</code>的使用格式：<code>方法名.call(对象,参数1,...,参数n);</code></li>
-<li><code>apply()</code>的使用格式：<code>方法名.apply(对象,[参数数组]);</code></li>
-<li><code>bind()</code>的使用格式：<code>方法名.bind(对象,参数1,...,参数n)();</code></li>
-<li>上面方法中的第一个参数（对象）就是 this 要指向的对象</li>
-<li><code>call()</code>和<code>apply()</code>的区别：前者接收的是若干个参数组成的参数列表，后者接收的是一个参数数组</li>
-<li><code>bind()</code>方法创建一个新的函数，当被调用时，将其 this 关键字设置为提供的值，在调用新函数时，在任何提供之前提供一个给定的参数序列。所以使用时<code>需要手动调用</code></li>
-<li><code>bind()</code>是返回对应函数，便于稍后调用。<code>apply()</code>、<code>call()</code>是立即调用</li>
-</ol>
-<h3 id="五-this-指向的一些练习"><a href="#五-this-指向的一些练习" class="headerlink" title="五. this 指向的一些练习"></a>五. this 指向的一些练习</h3><ol>
-<li><p>DEMO-1</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> name = <span class="string">&quot;222&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> a = &#123;</span><br><span class="line">    name: <span class="string">&quot;111&quot;</span>,</span><br><span class="line">    say: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="built_in">this</span>.name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> fun = a.say;</span><br><span class="line">fun(); <span class="comment">// 222</span></span><br><span class="line">a.say(); <span class="comment">// 111</span></span><br><span class="line"><span class="keyword">var</span> b = &#123;</span><br><span class="line">    name: <span class="string">&quot;333&quot;</span>,</span><br><span class="line">    say: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        fun();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line">b.say(a.say); <span class="comment">// 222</span></span><br><span class="line">b.say = a.say;</span><br><span class="line">b.say(); <span class="comment">// 333 </span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<h3 id="箭头函数中的-this-问题"><a href="#箭头函数中的-this-问题" class="headerlink" title="箭头函数中的 this 问题"></a>箭头函数中的 this 问题</h3><ol>
-<li>箭头函数的 this 不是调用的时候决定的，而是在定义的时候处在的对象就是它的 this</li>
-<li>理解<ol>
-<li>箭头函数的 this 看外层的是否有函数</li>
-<li>如果有，外层函数的 this 就是内部箭头函数的 this</li>
-<li>如果没有，则 this 是 window</li>
-</ol>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>JavaScript</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>原型与原型链</title>
-    <url>/2020/12/02/%E5%8E%9F%E5%9E%8B%E4%B8%8E%E5%8E%9F%E5%9E%8B%E9%93%BE%E7%9A%84%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="一-prototype"><a href="#一-prototype" class="headerlink" title="一. prototype"></a><code>一. prototype</code></h2><ol>
-<li><code>prototype</code>是函数所独有的，它是从一个函数指向一个对象，即<code>函数.prototype</code>是一个对象，这个对象里包含了所有实例共享的属性和方法，例如<code>Array.prototype.push()</code>，在原型链上编程就是基于此种形式</li>
-<li>任何函数在创建的时候，都会默认的同时创建该函数的<code>prototype</code>对象</li>
-<li><code>构造器函数.prototye = 通过该构造器new出来的对象.__proto__</code></li>
-</ol>
-<h3 id="二-proto"><a href="#二-proto" class="headerlink" title="二. __proto__"></a><code>二. __proto__</code></h3><ol>
-<li><code>__proto__</code>是对象独有的，因为 JavaScript 中函数也是一种对象，所以函数也有<code>__proto__</code>属性</li>
-<li><code>__proto__</code>是从一个对象指向另一个对象，即<code>new出来的对象.__proto__</code>指向了它的原型对象（原型对象，即<code>构造器函数.prototype</code>）</li>
-<li><code>__proto__</code>的作用就是当一个实例化对象访问一个属性或方法时，如果自己没有，会从父对象（也就是原型对象）上找，父对象上也没有时，会继续从父对象的<code>__proto__</code>属性对应的对象上面去找，一层层往上找，直到找到了或者到达原型链的顶端（<code>Object.__proto__ </code>是原型链的终端）为止，这一条链就是我们所说的<code>原型链</code></li>
-<li><code>[[prototype]]</code>属性是隐藏的，不过目前大部分新浏览器实现方式是使用<code>__proto__</code>来表示</li>
-</ol>
-<h3 id="三-constructor"><a href="#三-constructor" class="headerlink" title="三. constructor"></a><code>三. constructor</code></h3><ol>
-<li><code>constructor</code>是对象独有的，因为 JavaScript 中函数也是一种对象，所以函数也有<code>constructor</code>属性</li>
-<li><code>constructor</code>是从一个对象指向一个函数，即指向的是该对象的构造函数</li>
-<li> 单从本身来讲，只有<code>函数.prototype</code>拥有<code>constructor</code>这个属性，即实例化对象本身没有<code>constructor</code>，虽然如此，但实例化对象也可以通过<code>__proto__</code>继承到相应的<code>constructor</code></li>
-<li> 所有函数（此处当作对象处理）的<code>constructor</code>最终指向的是<code>Function()</code></li>
-<li><code>Factory.prototype.constructor</code>指向的是<code>Factory</code>，<code>Factory.constructor</code>指向的是<code>Function()</code></li>
-</ol>
-]]></content>
-      <categories>
-        <category>JavaScript</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>同源策略</title>
-    <url>/2020/02/02/%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5/</url>
-    <content><![CDATA[<h2 id="同源策略"><a href="#同源策略" class="headerlink" title="同源策略"></a>同源策略</h2><h5 id="初识同源策略"><a href="#初识同源策略" class="headerlink" title="初识同源策略"></a>初识同源策略</h5><ol>
-<li>浏览器有一个很重要的概念 ==&gt; 同源策略(Same-Origin Policy)。所谓同源是指域名、协议、端口相同。不同源的客户端脚本(Javascript、ActionScript)在没明确授权的情况下，不能读写对方的资源。</li>
-<li>Ajax 受同源策略的限制</li>
-</ol>
-<h5 id="URL"><a href="#URL" class="headerlink" title="URL"></a>URL</h5><ol>
-<li>URL：Uniform Resource Locator，统一资源定位符</li>
-<li>URI：Uniform Resource Identifier，统一资源标识符</li>
-<li>URI 的最常见形式是统一资源定位符 (URL)，它也被称为 Web 地址</li>
-<li>URN 是另一种形式的 URI，它通过特定命名空间中的唯一名称来标识资源</li>
-<li>格式：<code>协议://域名:端口号/文件路径或者参数</code></li>
-</ol>
-<h5 id="DNS-解析"><a href="#DNS-解析" class="headerlink" title="DNS 解析"></a>DNS 解析</h5><ol>
-<li>客户端首先会访问最近的一台 DNS 服务器（也就是客户端的 TCP/IP 设置中填写的 DNS 服务器地址），</li>
-<li>假设要查询 <a href="http://www.lab.glasscom.com/">www.lab.glasscom.com</a> 这台 Web 服务器的相关信息</li>
-<li>由于最近的 DNS 服务器中没有存放 <a href="http://www.lab.glasscom.com/">www.lab.glasscom.com</a> 这一域名对应的信息，所以我们需要从顶层开始向下查找</li>
-<li>最近的 DNS 服务器中保存了根域 DNS 服务器的信息，因此它会将来自客户端的查询消息转发给根域 DNS 服务器</li>
-<li>根域服务器中也没有 <a href="http://www.lab.glasscom.com/">www.lab.glasscom.com</a> 这个域名，但根据域名结构可以判断这个域名属于 com 域，因此根域 DNS 服务器会返回它所管理的 com 域中的 DNS 服务器的 IP 地址</li>
-<li>最近的 DNS 服务器又会向 com 域的 DNS 服务器发送查询消息</li>
-<li>com 域中也没有 <a href="http://www.lab.glasscom.com/">www.lab.glasscom.com</a> 这个域名的信息，和刚才一样，com 域服务器会返回它下面的 glasscom.com 域的 DNS 服务器的 IP 地址</li>
-<li>以此类推，只要重复前面的步骤，就可以顺藤摸瓜找到目标 DNS 服务器</li>
-<li>总结：可以理解为 DNS 解析过程是将域名倒着过来解析的</li>
-</ol>
-<h5 id="域名"><a href="#域名" class="headerlink" title="域名"></a>域名</h5><ol>
-<li>对于 <a href="http://www.zhidao.baidu.com/">www.zhidao.baidu.com</a></li>
-<li>顶级域名也叫作一级域名，比如 <code>.com</code>、<code>.top</code> 等等</li>
-<li>二级域名即 baidu.com</li>
-<li>三级域名即 zhidao.baidu.com</li>
-<li>对于域名的层级说法不一，理解即可</li>
-</ol>
-<h5 id="端口号"><a href="#端口号" class="headerlink" title="端口号"></a>端口号</h5><ol>
-<li>浏览网页服务默认的端口号都是 80，因此只需输入网址即可，不用输入<code>:80</code></li>
-<li>常见的端口号<ul>
-<li>21 端口：FTP 文件传输服务</li>
-<li>25 端口：SMTP 简单邮件传输服务</li>
-<li>53 端口：DNS 域名解析服务</li>
-<li>80 端口：HTTP 超文本传输服务</li>
-<li>443 端口：HTTPS 加密的超文本传输服务</li>
-<li>1521 端口：Oracle 数据库服务</li>
-</ul>
-</li>
-</ol>
-<h5 id="地址栏中输入-url-后发生了什么"><a href="#地址栏中输入-url-后发生了什么" class="headerlink" title="地址栏中输入 url 后发生了什么"></a>地址栏中输入 url 后发生了什么</h5><ol>
-<li>将 URL 通过 DNS 解析成 IP 地址，找相应的端口</li>
-<li>客户端(浏览器)通过 TCP 协议建立到服务器的 TCP 连接</li>
-<li>客户端（浏览器）向 Web 服务器端（HTTP 服务器）发送 HTTP 协议包，请求服务器里的资源文档</li>
-<li>服务器向客户端发送 HTTP 协议应答包</li>
-<li>客户端和服务器断开（四次挥手）</li>
-<li>客户端开始解释处理 HTML 文档（浏览器渲染）</li>
-</ol>
-<h5 id="TCP-UDP-协议（传输层）"><a href="#TCP-UDP-协议（传输层）" class="headerlink" title="TCP/UDP 协议（传输层）"></a>TCP/UDP 协议（传输层）</h5><ol>
-<li>面向连接的 TCP：TCP（Transmission Control Protocol，传输控制协议）是基于连接的协议，也就是说，在正式收发数据前，必须和对方建立可靠的连接。一个 TCP 连接必须要经过三次对话才能建立起来。</li>
-<li>面向非连接的 UDP 协议：UDP（User Data Protocol，用户数据报协议）是与 TCP 相对应的协议。它是面向非连接的协议，它在正式通信前不必与对方先建立连接，不管对方状态就直接发送。类似于手机发短信、QQ 发消息。</li>
-<li>TCP 与 UDP 的区别</li>
-</ol>
-<h5 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h5><ol>
-<li>先 Client 端发送连接、请求报文。</li>
-<li>Server 端接受连接后回复 ACK 报文，并为这次连接分配资源。</li>
-<li>Client 端接收到 ACK 报文后也向 Server 端发送 ACK 报文，并分配资源，这样 TCP 连接就建立了。</li>
-<li>通俗理解：<a href="https://blog.csdn.net/X8i0Bev/article/details/83066876">https://blog.csdn.net/X8i0Bev/article/details/83066876</a></li>
-</ol>
-<h5 id="四次挥手"><a href="#四次挥手" class="headerlink" title="四次挥手"></a>四次挥手</h5><p>1.Client 端发起中断连接请求，也就是发送 FIN 报文。Server 端接到 FIN 报文后，意思是说”我 Client 端没有数据要发给你了”，但是如果你还有数据没有发送完成，则不必急着关闭（Socket），可以继续发送数据。<br>2.server 发送 ACK，”告诉 Client 端，你的请求我收到了，但是我还没准备好，请继续等我的消息”。wait:这个时候 Client 端就进入 FIN_WAIT 状态，继续等待 Server 端的 FIN 报文。 3.当 Server 端确定数据已发送完成，则向 Client 端发送 FIN 报文，”告诉 Client 端，好了，我这边数据发完了，准备好关闭连接了”。<br>4.Client 端收到 FIN 报文后，”就知道可以关闭连接了，但是他还是不相信网络，怕 Server 端不知道要关闭，所以发送 ACK 后进入 TIME_WAIT 状态，如果 Server 端没有收到 ACK 则可以重传。“，Server 端收到 ACK 后，”就知道可以断开连接了”。Client 端等待了 2MSL 后依然没有收到回复，则证明 Server 端已正常关闭，那好，我 Client 端也可以关闭连接了。Ok，TCP 连接就这样关闭了！</p>
-<h5 id="浏览器的缓存机制"><a href="#浏览器的缓存机制" class="headerlink" title="浏览器的缓存机制"></a>浏览器的缓存机制</h5><ol>
-<li>状态码 304 表示上次缓存的资源没有改变</li>
-<li>浏览器如何知道是否直接取缓存的内容？<ul>
-<li>请求头中：<ul>
-<li>If-None-Match: 匹配 etag   如果它修改了 不取缓存</li>
-<li>If-Modified-Since：将先前服务器端发过来的最后修改时间戳发送回去</li>
-</ul>
-</li>
-<li>响应头中：<ul>
-<li>etag —&gt;标记图片资源</li>
-<li>last-Modified (服务器最后修改的时间)和 etag 配合使用</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>ETags 和 If-None-Match 的工作原理是在 HTTP Response 中添加 ETags 信息。当客户端再次请求该资源时，将在 HTTP Request 中加入 If-None-Match 信息（ETags 的值）。如果服务器验证资源的 ETags 没有改变（该资源没有改变），将返回一个 304 状态；否则，服务器将返回 200 状态，并返回该资源和新的 ETags。</li>
-<li>响应头中的 ETag 值：类似于缓存唯一 ID，下次请求时会将该值带着（if-None-Match=”ETag 值”）与服务器中存的该值进行比对，如果一定则告诉浏览器该资源没有变，可以直接去缓存拿，返回状态码 304，然后再将 ETag 值以响应的方式返回给浏览器，即 ETag 值是每次浏览器从收到响应之后从里面拿到的</li>
-<li>常见的<ul>
-<li>Date：服务器响应内容日期</li>
-<li>Cache-control：内容缓存时间</li>
-<li>no-cache 不被缓存的，只不过每次在向客户端（浏览器）提供响应数据时，缓存都要向服务器评估缓存响应的有效性。</li>
-<li>no-store 用于防止重要的信息被无意的发布。在请求消息中发送将使得请求和响应消息都不使用缓存。 根据缓存超时</li>
-<li>max-age 指示客户机可以接收生存期不大于指定时间（以秒为单位）的响应。</li>
-<li>min-fresh 指示客户机可以接收响应时间小于当前时间加上指定时间的响应。</li>
-<li>max-stale 指示客户机可以接收超出超时期间的响应消息。如果指定 max-stale 消息的值，那么客户机可以 接收超出超时期指定值之内的响应消息。</li>
-<li>Expires：内容保质期，表示存在时间，允许客户端在这个时间之前不去检查（发请求），等同 max-age 的效果。但是如果同时存在，则被 cache-control 的 max-age 覆盖。</li>
-</ul>
-</li>
-</ol>
-<h5 id="请求报文"><a href="#请求报文" class="headerlink" title="请求报文"></a>请求报文</h5><h5 id="响应状态码"><a href="#响应状态码" class="headerlink" title="响应状态码"></a>响应状态码</h5><h5 id="请求方法"><a href="#请求方法" class="headerlink" title="请求方法"></a>请求方法</h5><ol>
-<li>POST</li>
-<li>GET</li>
-<li>HTTP 协议对 GET 和 POST 都没有对数据的长度进行限制，两方面原因造成数据限制的原因<ul>
-<li>早期浏览器会对 URL 长度进行限制（浏览器 URL 输入框）</li>
-<li>浏览器会对 Content-length 进行限制，这是为了服务器安全和稳定。</li>
-</ul>
-</li>
-</ol>
-<h5 id="HTTP-协议与-HTTPS-协议（应用层）"><a href="#HTTP-协议与-HTTPS-协议（应用层）" class="headerlink" title="HTTP 协议与 HTTPS 协议（应用层）"></a>HTTP 协议与 HTTPS 协议（应用层）</h5><ol>
-<li>超文本传输协议（HTTP，HyperText Transfer Protocol)是互联网上应用最为广泛的一种网络协议。</li>
-<li>HTTPS（全称：Hyper Text Transfer Protocol over Secure Socket Layer），是以安全为目标的 HTTP 通道，简单讲是 HTTP 的安全版。</li>
-</ol>
-<h5 id="未分类"><a href="#未分类" class="headerlink" title="未分类"></a>未分类</h5><ol>
-<li>网站如何统计用户从何点击而来 ==&gt; 看 Referer 的值，如果从浏览器地址栏里直接输入地址请求头没有 Referer</li>
-</ol>
-]]></content>
-      <categories>
-        <category>web</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>异步</title>
-    <url>/2020/12/02/%E5%BC%82%E6%AD%A5/</url>
-    <content><![CDATA[<h3 id="Promise-对象"><a href="#Promise-对象" class="headerlink" title="Promise 对象"></a>Promise 对象</h3><ol>
-<li><p>promise 对象：代表了未来某个将要发生的事件，通常是一个异步操作</p>
-</li>
-<li><p>有了 promise 对象，可以将异步操作以同步的流程表达出来，避免了层层嵌套的回调函数(回调地狱)</p>
-</li>
-<li><p>ES6 中的 Promise 是一个构造函数，用来生成 promise 实例</p>
-</li>
-<li><p>promise 对象的 3 个状态</p>
+    <title>Nginx 部署与使用(一)</title>
+    <url>/2020/12/16/Nginx%20%E9%83%A8%E7%BD%B2%E4%B8%8E%E4%BD%BF%E7%94%A8(%E4%B8%80)/</url>
+    <content><![CDATA[<h3 id="一-Nginx-部署"><a href="#一-Nginx-部署" class="headerlink" title="一. Nginx 部署"></a>一. Nginx 部署</h3><p><strong>部署方式一：官方源安装</strong></p>
+<p>使用官方源安装的目录结构会比较标准，同时可以下载最新的稳定版。</p>
 <ol>
-<li>pending ：初始化状态</li>
-<li>fullfilled ：成功状态</li>
-<li>rejected ：失败状态</li>
+<li><p>更新 yum 下载源(nginx 官方网站：nginx.org)</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 官方参考 http://nginx.org/en/linux_packages.html<span class="comment">#RHEL-CentOS</span></span></span><br><span class="line">vim /etc/yum.repos.d/nginx.repo</span><br><span class="line">[nginx-stable]</span><br><span class="line">name=nginx stable repo</span><br><span class="line">baseurl=http://nginx.org/packages/centos/$releasever/$basearch/</span><br><span class="line">gpgcheck=1</span><br><span class="line">enabled=1</span><br><span class="line">gpgkey=https://nginx.org/keys/nginx_signing.key</span><br><span class="line">module_hotfixes=true</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载安装软件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install -y nginx</span><br><span class="line">nginx -V</span><br></pre></td></tr></table></figure>
+
+</li>
 </ol>
-</li>
-<li><p>使用方法代码示例</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 创建 promise 对象，该过程为同步的</span></span><br><span class="line"><span class="keyword">let</span> promise = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve,reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;promise对象的回调中代码同步执行&quot;</span>);</span><br><span class="line">    <span class="comment">// 执行异步操作，通常是发送 ajax 请求、开启定时器</span></span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">&quot;异步任务执行&quot;</span>);</span><br><span class="line">        <span class="comment">// 根据异步任务的返回结果去修改 promise 的状态</span></span><br><span class="line">        <span class="keyword">let</span> data = <span class="string">&quot;执行成功了&quot;</span>,</span><br><span class="line">            error = <span class="string">&quot;执行失败了&quot;</span></span><br><span class="line">        <span class="comment">// 异步操作中的数据可以在调用resolve和reject方法的时候通过参数传递出去</span></span><br><span class="line">        <span class="comment">// resolve(data); // 修改 primose 的状态为 fullfilled</span></span><br><span class="line">        reject(error); <span class="comment">// 修改 primose 的状态为 rejected</span></span><br><span class="line">    &#125;, <span class="number">2000</span>)</span><br><span class="line">&#125;)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&quot;外层同步任务&quot;</span>);</span><br><span class="line">promise</span><br><span class="line">    .then(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123; <span class="comment">// 此处的形参拿到的是上面 resolve(data) 中的 data 值</span></span><br><span class="line">    <span class="comment">// 成功的回调</span></span><br><span class="line">    <span class="built_in">console</span>.log(data);</span><br><span class="line">&#125;, <span class="function">(<span class="params">error</span>) =&gt;</span> &#123; <span class="comment">// 此处的形参拿到的是上面 reject(error) 中的 error 值</span></span><br><span class="line">    <span class="comment">// 失败的回调</span></span><br><span class="line">    <span class="built_in">console</span>.log(error);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>实际案例代码示例</p>
-<blockquote>
-<p>环境说明：</p>
+<p><strong>部署方式二：编译安装</strong></p>
 <ol>
-<li>请求<code>http://localhost:3000/news</code>会返回一个 JSON 格式的字符串：</li>
-<li><code>&#123;&quot;title&quot;:&quot;新闻标题&quot;,&quot;content&quot;:&quot;新闻内容&quot;,&quot;commentsUrl&quot;:&quot;/comments?newsId=undefined&quot;&#125;</code></li>
-<li>在请求时添加 id 来确定唯一的一条新闻数据</li>
-<li>请求<code>http://localhost:3000/comments?newsId=</code>+<code>上面请求新闻数据的指定id值</code>会返回一个数组：</li>
-<li><code>[&#123;&quot;id&quot;:1,&quot;content&quot;:&quot;评论一内容&quot;,&quot;newsId&quot;:&quot;新闻id&quot;&#125;,&#123;&quot;id&quot;:2,&quot;content&quot;:&quot;评论二内容&quot;,&quot;newsId&quot;:&quot;新闻id&quot;&#125;]</code></li>
-</ol>
-</blockquote>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getNews</span>(<span class="params">myUrl</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> promise = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">        $.ajax(&#123;</span><br><span class="line">            type: <span class="string">&quot;get&quot;</span>,</span><br><span class="line">            data: <span class="string">&quot;id=2&quot;</span>,</span><br><span class="line">            url: myUrl,</span><br><span class="line">            <span class="function"><span class="title">success</span>(<span class="params">res</span>)</span> &#123;</span><br><span class="line">                resolve(res);</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="function"><span class="title">error</span>(<span class="params">error</span>)</span> &#123;</span><br><span class="line">                reject(<span class="string">&quot;请求失败&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> promise; <span class="comment">// 将 promise 对象返回用于后面调用 then() 方法</span></span><br><span class="line">&#125;</span><br><span class="line">getNews(<span class="string">&quot;http://localhost:3000/news&quot;</span>)  <span class="comment">// 开始请求新闻</span></span><br><span class="line">    .then(<span class="function">(<span class="params">news</span>) =&gt;</span> &#123; <span class="comment">// 新闻请求成功</span></span><br><span class="line">        <span class="built_in">console</span>.log(news);</span><br><span class="line">        <span class="keyword">let</span> url = <span class="string">&quot;http://localhost:3000&quot;</span> + news.commentsUrl; <span class="comment">// 根据上次请求内容获取相应id的评论</span></span><br><span class="line">        <span class="keyword">return</span> getNews(url); <span class="comment">// 再次回调的使用方式，使得在下面可以链式调用，即继续 .then()</span></span><br><span class="line">	&#125;, <span class="function">(<span class="params">msg</span>) =&gt;</span> &#123; <span class="comment">// 新闻请求失败</span></span><br><span class="line">    	<span class="built_in">console</span>.log(msg);</span><br><span class="line">	&#125;)</span><br><span class="line">    .then(<span class="function">(<span class="params">comments</span>) =&gt;</span> &#123; <span class="comment">// 评论请求成功</span></span><br><span class="line">    	<span class="built_in">console</span>.log(comments);</span><br><span class="line">	&#125;, <span class="function">(<span class="params">msg</span>) =&gt;</span> &#123; <span class="comment">// 评论请求失败</span></span><br><span class="line">    	<span class="built_in">console</span>.log(msg);</span><br><span class="line">	&#125;)</span><br></pre></td></tr></table></figure>
-
+<li><p>解决依赖问题</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install -y pcre-devel openssl-devel</span><br><span class="line"><span class="meta">#</span><span class="bash"> pcre-devel 可以实现兼容 perl 语言的正则表达式</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> openssl-devel 可以实现基于 HTTPS 协议的数据传输</span></span><br></pre></td></tr></table></figure>
 </li>
-</ol>
-<h3 id="Generator-函数"><a href="#Generator-函数" class="headerlink" title="Generator 函数"></a>Generator 函数</h3><ol>
-<li><p>Generator 函数是 ES6 提供的解决异步编程的方案之一</p>
+<li><p>创建服务进程管理用户</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">useradd nginx -M -s /sbin/nologin</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>Generator 函数是一个状态机，内部封装了不同状态的数据</p>
+<li><p>下载编译安装源码包</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget http://nginx.org/download/nginx-1.18.0.tar.gz</span><br><span class="line">tar xf nginx-1.18.0.tar.gz</span><br><span class="line">cd nginx-1.18.0</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>用来生成遍历器对象</p>
+<li><p>编译安装</p>
+<ul>
+<li><p>配置</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./configure --help</span><br><span class="line"><span class="meta">#</span><span class="bash"> 常见参数说明</span></span><br><span class="line">--prefix=PATH # 指定软件程序的安装路径 /app/nginx-1.18.0</span><br><span class="line">--sbin-path=PATH # 软件有关命令文件的保存路径 /usr/bin</span><br><span class="line">--modules-path=PATH # 软件生成的模块保存路径</span><br><span class="line">--conf-PATH # 软件配置文件保存路径</span><br><span class="line">--error</span><br><span class="line">--with-xxx # 可以使用的功能模块</span><br><span class="line">--without-xxx # 指定不使用的功能模块</span><br><span class="line">./configure  --prefix=/app/nginx-1.18 --user=nginx --group=nginx  --with-http_ssl_module  --with-http_stub_status_module</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>可暂停函数(惰性求值)，yield 可暂停， next 方法可启动，每次返回的是 yield 后的表达式结果</p>
+<li><p>编译</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">make</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>特点</p>
-<ol>
-<li>function 与 函数名之间有一个星号，即<code>function* generatorExample()&#123;&#125;</code>  </li>
-<li>内部用 yield 表达式来定义不同的状态</li>
-<li>Generator 函数返回的是指针对象，不会执行函数内部逻辑</li>
-<li>调用 next 方法函数内部逻辑开始执行，遇到 yield 表达式停止，返回格式为<code>&#123;value: yield后的表达式结果/undefined, done: false/true&#125;</code></li>
-<li>再次调用 next 方法会从上一次停止时的 yield 处开始，直到最后</li>
-<li>yield 语句返回结果通常为 undefined ，当调用 next 方法时传参内容会作为启动时 yield 语句的返回值，即第 n 个 next 方法的调用时传的参数对应于第 n-1 位置的 yield 的返回值</li>
-</ol>
+<li><p>安装</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">make install</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>使用方法代码示例</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;b&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;return b&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span>* <span class="title">generatorExample</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;a&quot;</span>);</span><br><span class="line">    <span class="keyword">yield</span> <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">    <span class="keyword">yield</span> test();</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;c&quot;</span>);</span><br><span class="line">    <span class="keyword">let</span> result = <span class="keyword">yield</span> <span class="string">&quot;c&quot;</span>;</span><br><span class="line">    <span class="built_in">console</span>.log(result);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;d&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment">1. generatorExample() 执行后返回的是一个指针对象，即遍历器对象</span></span><br><span class="line"><span class="comment">2. 调用 next() 方法后，即 generatorExample().next() 之后，开始执行语句直到碰到 yield</span></span><br><span class="line"><span class="comment">3. 遇到 yield 函数执行暂停，将 yield 后的内容作为本次调用函数的返回值返回出去</span></span><br><span class="line"><span class="comment">4. 返回值为一个对象，有两个 key ，&#123; value:&quot;yield后表达式的值或者函数执行的返回结果&quot;, done: false/true&#125;</span></span><br><span class="line"><span class="comment">5. 当指针指向最后一个 yield 之后，下次执行 next 方法时，done 变为 true ，value 值为 generator 函数的返回值，没有 return 则返回 undefined</span></span><br><span class="line"><span class="comment">6. done 为 true 代表函数内部执行完毕</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">let</span> myGE = generatorExample(); <span class="comment">// 指针对象</span></span><br><span class="line"><span class="built_in">console</span>.log(myGE.next()); <span class="comment">// a &#123;value: &quot;hello&quot;, done: false&#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(myGE.next()); <span class="comment">// b &#123;value: &quot;return b&quot;, done: false&#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(myGE.next()); <span class="comment">// c &#123;value: &quot;c&quot;, done: false&#125;</span></span><br><span class="line"><span class="built_in">console</span>.log(myGE.next(<span class="string">&#x27;next-args&#x27;</span>)); <span class="comment">// next-args &#123;value: &quot;d&quot;, done: true&#125;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>给一个对象部署一个 iterator 接口可以用：<code>obj[Symbol.iterator] = function* ()&#123;&#125;</code>，此时 obj 是可迭代的，且 for of 中每一个 i 都是 yield 后的值</p>
-</li>
-<li><p>实际案例代码示例</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getNews</span>(<span class="params">url</span>) </span>&#123;</span><br><span class="line">    $.get(url, <span class="string">&quot;id=1&quot;</span>, <span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(res);</span><br><span class="line">        <span class="keyword">let</span> url = <span class="string">&quot;http://localhost:3000&quot;</span> + res.commentsUrl;</span><br><span class="line">        GN.next(url);</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span>* <span class="title">getThing</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> url = <span class="keyword">yield</span> getNews(<span class="string">&quot;http://localhost:3000/news&quot;</span>);</span><br><span class="line">    <span class="keyword">yield</span> getNews(url);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> GN = getThing(); <span class="comment">// 拿到指针对象</span></span><br><span class="line">GN.next();</span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ol>
-<h3 id="async-函数"><a href="#async-函数" class="headerlink" title="async 函数"></a>async 函数</h3><ol>
-<li><p>真正意义上去解决异步回调的问题，同步流程表达异步操作，源自 ES2017</p>
-</li>
-<li><p>本质：Generator 语法糖</p>
-</li>
-<li><p>特点：</p>
-<ol>
-<li>不需要像 Generator 去调用 next 方法，遇到 await 等待，当前的异步操作完成就往下执行</li>
-<li>返回的总是 Promise 对象，可以用 then 方法进行下一步操作</li>
-<li>async 取代 Generator 函数的 *(星号) ，await 取代 Generator 的 yield</li>
-</ol>
-</li>
-<li><p>使用方法代码示例</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">asyncTest</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">setInterval</span>(resolve, <span class="number">2000</span>); <span class="comment">// 2秒后执行 resolve 方法</span></span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">asyncPrint</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;开始执行&quot;</span>, <span class="keyword">new</span> <span class="built_in">Date</span>().toTimeString());</span><br><span class="line">    <span class="keyword">await</span> asyncTest(); <span class="comment">// async 内部执行遇到异步函数会等待</span></span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;结束执行&quot;</span>, <span class="keyword">new</span> <span class="built_in">Date</span>().toTimeString());</span><br><span class="line">&#125;</span><br><span class="line">asyncPrint();  <span class="comment">// 开始执行 ...(2s之后) 结束执行</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>await 返回值问题</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;xxx&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">myAsync</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> res = <span class="keyword">await</span> test(); <span class="comment">// 普通函数则 await 的返回值为普通函数的返回值 </span></span><br><span class="line">    <span class="built_in">console</span>.log(res); <span class="comment">// xxx</span></span><br><span class="line">    res = <span class="keyword">await</span> <span class="built_in">Promise</span>.resolve();</span><br><span class="line">    <span class="built_in">console</span>.log(res); <span class="comment">// undefined</span></span><br><span class="line">    res = <span class="keyword">await</span> <span class="built_in">Promise</span>.reject();</span><br><span class="line">    <span class="built_in">console</span>.log(res);<span class="comment">// Uncaught (in promise) undefined 报错</span></span><br><span class="line">&#125;</span><br><span class="line">myAsync();</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>参数传递问题</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 在上面的 await 返回值可以看到，所拿到的值都是没有意义的，我们可以通过在调用方法的时候传参来利用返回值进行下面的处理</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">myAsync</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> res = <span class="keyword">await</span> <span class="built_in">Promise</span>.resolve(<span class="string">&#x27;xxx&#x27;</span>); <span class="comment">// 此时传递的参数就是 await 的返回值，返回值可在后续代码的使用</span></span><br><span class="line">    <span class="built_in">console</span>.log(res); <span class="comment">// xxx</span></span><br><span class="line">&#125;</span><br><span class="line">myAsync();</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>实际案例代码示例</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">getNews</span>(<span class="params">url</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">        $.ajax(&#123;</span><br><span class="line">            method: <span class="string">&quot;get&quot;</span>,</span><br><span class="line">            url,</span><br><span class="line">            success: <span class="function"><span class="params">res</span> =&gt;</span> resolve(res), <span class="comment">// 调用 resolve 的时候将响应数据传入，下面对应的 await 便有值可用了</span></span><br><span class="line">            error: <span class="function"><span class="params">error</span> =&gt;</span> reject(error) </span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">sendXml</span>(<span class="params">url</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> res = <span class="keyword">await</span> getNews(url); <span class="comment">// 此处将响应数据的值传给 res</span></span><br><span class="line">    <span class="built_in">console</span>.log(res);</span><br><span class="line">    url = <span class="string">&quot;http://localhost:3000&quot;</span> + res.commentsUrl;</span><br><span class="line">    res = <span class="keyword">await</span> getNews(url);</span><br><span class="line">    <span class="built_in">console</span>.log(res);</span><br><span class="line">&#125;</span><br><span class="line">sendXml(<span class="string">&quot;http://localhost:3000/news&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>请求错误的处理技巧：将 reject 改为 resolve 方法，在下面进行判断处理</p>
-</blockquote>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">getNews</span>(<span class="params">url</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">        $.ajax(&#123;</span><br><span class="line">            method: <span class="string">&quot;get&quot;</span>,</span><br><span class="line">            url,</span><br><span class="line">            success: <span class="function"><span class="params">res</span> =&gt;</span> resolve(res),</span><br><span class="line">            error: <span class="function"><span class="params">error</span> =&gt;</span> resolve(<span class="literal">false</span>) <span class="comment">// 请求错误也调用 resolve 方法，返回 false</span></span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">sendXml</span>(<span class="params">url</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> res = <span class="keyword">await</span> getNews(url);</span><br><span class="line">    <span class="keyword">if</span> (!res) &#123; <span class="comment">// 如果错误返回 false ，取反进入错误代码</span></span><br><span class="line">        alert(<span class="string">&quot;客官打扰了，新闻很快就来哦&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>; <span class="comment">// 不再进行后续的请求处理</span></span><br><span class="line">    &#125;</span><br><span class="line">    url = <span class="string">&quot;http://localhost:3000&quot;</span> + res.commentsUrl;</span><br><span class="line">    res = <span class="keyword">await</span> getNews(url);</span><br><span class="line">&#125;</span><br><span class="line">sendXml(<span class="string">&quot;http://localhost:30001/news&quot;</span>);</span><br></pre></td></tr></table></figure>
-
+</ul>
 </li>
 </ol>
 ]]></content>
       <categories>
-        <category>JavaScript</category>
+        <category>Linux</category>
       </categories>
   </entry>
   <entry>
-    <title>算法</title>
-    <url>/2020/02/02/%E5%B8%B8%E7%94%A8%E7%9A%84%E7%AE%97%E6%B3%95/</url>
-    <content><![CDATA[<h3 id="一-排序算法"><a href="#一-排序算法" class="headerlink" title="一. 排序算法"></a>一. 排序算法</h3><h4 id="1-1-冒泡排序"><a href="#1-1-冒泡排序" class="headerlink" title="1.1 冒泡排序"></a>1.1 冒泡排序</h4><ol>
-<li><p>复杂度：O(n^2)</p>
-</li>
-<li><p>冒泡排序：每一轮都将本次遍历元素中的最大值放到最后一位，经过 arr.length - 1 次之后完成排序</p>
-</li>
-<li><p>代码</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bubbleSort</span>(<span class="params">arr</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// n 个数需要 n - 1 次冒泡即可完成排序</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; arr.length - <span class="number">1</span>; i++) &#123;</span><br><span class="line">        <span class="comment">// 优化：j &lt; arr.length - 1 - i 即对之前操作已经排序好的不再进行排序了</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j &lt; arr.length - <span class="number">1</span> - i; j++) &#123;</span><br><span class="line">            <span class="keyword">let</span> temp = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span> (arr[j] &gt; arr[j + <span class="number">1</span>]) &#123;</span><br><span class="line">                temp = arr[j];</span><br><span class="line">                arr[j] = arr[j + <span class="number">1</span>];</span><br><span class="line">                arr[j + <span class="number">1</span>] = temp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<h4 id="1-2-选择排序"><a href="#1-2-选择排序" class="headerlink" title="1.2 选择排序"></a>1.2 选择排序</h4><ol>
-<li><p>复杂度：O(n^2)</p>
-</li>
-<li><p>选择排序：每一轮选中第一个元素为最初的最小值，从下一个元素开始遍历找到比最小值还小的元素，若找到了则记住索引，若之后再次遇到比上次更小的元素，则更新索引，每一轮结束后，若找到了，则将最小的元素与最初的设为最小值的元素的位置进行交换，没有找到则进行下一次的遍历</p>
-</li>
-<li><p>代码</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">selectionSort</span>(<span class="params">arr</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> len = arr.length,</span><br><span class="line">        minIndex,</span><br><span class="line">        temp;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; len - <span class="number">1</span>; i++) &#123; <span class="comment">// 需要 arr.length - 1 次即可完成排序</span></span><br><span class="line">        minIndex = i; <span class="comment">// 第 i 位为遍历开始的最小值</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> j = i + <span class="number">1</span>; j &lt; len; j++) &#123; <span class="comment">// 从第 i + 1 位开始遍历</span></span><br><span class="line">            <span class="keyword">if</span> (arr[j] &lt; arr[minIndex]) &#123; <span class="comment">// 如果发现之后的元素有小于最小值的，则</span></span><br><span class="line">                minIndex = j; <span class="comment">// 更改最小值的索引</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (i != minIndex) &#123; <span class="comment">// i == minIndex 即从 i+1 开始的遍历结果中没有比 i 小的值，则不需要进行交换</span></span><br><span class="line">            temp = arr[i];</span><br><span class="line">            arr[i] = arr[minIndex];</span><br><span class="line">            arr[minIndex] = temp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> arr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<h4 id="1-3-插入排序"><a href="#1-3-插入排序" class="headerlink" title="1.3 插入排序"></a>1.3 插入排序</h4><ol>
-<li><p>复杂度：O(n^2)</p>
-<ul>
-<li>在最坏情况下，数组完全逆序，插入第 2 个元素时要考察前 1 个元素，插入第 3 个元素时，要考虑前 2 个元素，……，插入第 N 个元素，要考虑前 N - 1个元素。因此，最坏情况下的比较次数是 1 + 2 + 3 + … + (N - 1)，等差数列求和，结果为 N^2 / 2，所以最坏情况下的复杂度为 O(N^2)</li>
-<li>最好情况下，数组已经是有序的，每插入一个元素，只需要考查前一个元素，因此最好情况下，插入排序的时间复杂度为O(N)</li>
-</ul>
-</li>
-<li><p>插入排序：假定第一项已经排序了，接着，它和第二项进行比较，第二项是应该待在原位还是插到第一项之前呢？这样，头两项就已正确排序，接着和第三项比较（它是该插入到第一、第二还是第三的位置呢？），以此类推即可排序完成</p>
-</li>
-<li><p>代码</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">insertionSort</span>(<span class="params">arr</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> len = arr.length,</span><br><span class="line">        j,</span><br><span class="line">        temp;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; len; i++) &#123; <span class="comment">// 从第 1 位开始，默认第 0 位是有序的</span></span><br><span class="line">        j = i; <span class="comment">// j 用于判断要插入的位置</span></span><br><span class="line">        temp = arr[i]; <span class="comment">// temp 表示待插入的元素</span></span><br><span class="line">        <span class="keyword">while</span> (j &gt; <span class="number">0</span> &amp;&amp; arr[j - <span class="number">1</span>] &gt; temp) &#123; <span class="comment">// 从待插入元素的前一位开始看，若大于待插入元素</span></span><br><span class="line">            arr[j] = arr[j - <span class="number">1</span>]; <span class="comment">// 则将该元素往后移一位</span></span><br><span class="line">            j--; <span class="comment">// j 继续往前移动进行与带插入元素的大小判断，直到 j &lt;= 0 或者 arr[j] 比待插入元素小的时候跳出 </span></span><br><span class="line">        &#125;</span><br><span class="line">        arr[j] = temp; <span class="comment">// 将待插入元素插入到相应的位置上</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> arr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<h4 id="1-4-归并排序"><a href="#1-4-归并排序" class="headerlink" title="1.4 归并排序"></a>1.4 归并排序</h4><ol>
-<li>复杂度：O(nlog n)</li>
-<li></li>
-</ol>
-<h4 id="1-5-快速排序"><a href="#1-5-快速排序" class="headerlink" title="1.5 快速排序"></a>1.5 快速排序</h4><ol>
-<li><p>复杂度：O(nlog n)</p>
-</li>
-<li><p>核心思想：分而治之</p>
-</li>
-<li><p>简单快排：首先，从数组中选择一个元素，这个元素被称为基准值（pivot）。其次找出比基准值小的元素以及比基准值大的元素，这被称为分区（partitioning），之后通过递归和拼接即可解决问题</p>
-</li>
-<li><p>双路快排：</p>
-<ul>
-<li>首先，从数组中选择中间一项作为主元，即基准值</li>
-<li>创建两个指针，左边一个指向数组第一个项，右边一个指向数组最后一个项。移动左指针直到我们找到一个比主元大的元素，接着，移动右指针直到找到一个比主元小的元素，然后交换它们，重复这个过程，直到左指针超过了右指针。这个过程将使得比主元小的值都排在主元之前，而比主元大的值都排在主元之后。这一步叫作划分操作</li>
-<li>接着，算法对划分后的小数组（较主元小的值组成的子数组，以及较主元大的值组成的子数组）重复之前的两个步骤，直至数组已完全排序</li>
-</ul>
-</li>
-<li><p>编写涉及数组的递归函数时，基线条件通常是数组为空或只包含一个元素</p>
-</li>
-<li><p>代码（理解）</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">quickSort</span>(<span class="params">arr</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> pivot = arr[<span class="number">0</span>],</span><br><span class="line">        len = arr.length,</span><br><span class="line">        less = [],</span><br><span class="line">        greater = [];</span><br><span class="line">    <span class="keyword">if</span> (len &lt; <span class="number">2</span>) &#123; <span class="comment">// 递归结束出口</span></span><br><span class="line">        <span class="keyword">return</span> arr;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt; len; i++) &#123; <span class="comment">// 从第一位开始遍历</span></span><br><span class="line">        <span class="keyword">if</span> (arr[i] &gt;= pivot) &#123; <span class="comment">// 如果大于基准值</span></span><br><span class="line">            greater.push(arr[i]); <span class="comment">// 放到大于基准值的数组中</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            less.push(arr[i]); <span class="comment">// 否则放到小于基准值的数组中</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> quickSort(less).concat([pivot]).concat(quickSort(greater)); <span class="comment">// 逐级递归且拼接成新数组</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>代码（双路快排）</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">partition</span>(<span class="params">arr, low, high</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> pivot = arr[low];</span><br><span class="line">    <span class="keyword">while</span> (low &lt; high) &#123;</span><br><span class="line">        <span class="keyword">while</span> (low &lt; high &amp;&amp; arr[high] &gt; pivot) &#123;</span><br><span class="line">            high--;</span><br><span class="line">        &#125;</span><br><span class="line">        arr[low] = arr[high]; <span class="comment">// 因为 arr[low] 已经存储在 pivot 中了，所以此处可当作临时变量使用，且此操作将小的数放到了左边</span></span><br><span class="line">        <span class="keyword">while</span> (low &lt; high &amp;&amp; arr[low] &lt;= pivot) &#123; <span class="comment">// 此处 &lt;= pivot 即第一次判断时会进入 low++ ，避免了自己和自己比较</span></span><br><span class="line">            low++;</span><br><span class="line">        &#125;</span><br><span class="line">        arr[high] = arr[low]; <span class="comment">// 因为上面的 arr[high] 已经存储了，所以此时将 arr[low] 放到 high 处，完成了将大的数放到了右边</span></span><br><span class="line">    &#125;</span><br><span class="line">    arr[low] = pivot; <span class="comment">//无论怎样最后 low 都会等于 high ，所以将该位置的值替换为最初存储的基准值即可 </span></span><br><span class="line">    <span class="keyword">return</span> low; <span class="comment">// 将该位置索引返回</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">quickSort</span>(<span class="params">arr, low, high</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (low &lt; high) &#123;</span><br><span class="line">        <span class="keyword">let</span> pivot = partition(arr, low, high); <span class="comment">// 拿到索引值</span></span><br><span class="line">        quickSort(arr, low, pivot - <span class="number">1</span>); <span class="comment">// 分而治之，将 low 到 之前确定的基准位置之前的一个位置通过递归再次操作</span></span><br><span class="line">        quickSort(arr, pivot + <span class="number">1</span>, high);<span class="comment">// 分而治之，将之前确定的基准位置之后的一个位置到 high 通过递归再次操作</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> arr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>代码（五行简版）</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">quickSort</span>(<span class="params">arr</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (arr.length &lt; <span class="number">2</span>) &#123; <span class="comment">// 递归结束出口</span></span><br><span class="line">        <span class="keyword">return</span> arr;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> pivot = arr[<span class="number">0</span>];</span><br><span class="line">    <span class="comment">// filter(function(currentValue, index,arr))</span></span><br><span class="line">    <span class="keyword">let</span> less = arr.filter(<span class="function">(<span class="params">v, i</span>) =&gt;</span> v &lt;= pivot &amp;&amp; i != <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">let</span> greater = arr.filter(<span class="function"><span class="params">v</span> =&gt;</span> v &gt; pivot);</span><br><span class="line">    <span class="comment">// 三点运算符：可以代替 arguments 且只能放在形参的最后，例如 function test(...args)&#123;&#125;，args 是数组</span></span><br><span class="line">    <span class="comment">// 三点运算符：arr1 = [2,3,4]; arr = [1,...arr1,5]; 此时 arr = [1,2,3,4,5]</span></span><br><span class="line">    <span class="keyword">return</span> [...quickSort(less), pivot, ...quickSort(greater)];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ol>
-<hr>
-<h3 id="二-查找算法"><a href="#二-查找算法" class="headerlink" title="二. 查找算法"></a>二. 查找算法</h3><h4 id="1-1-二分查找"><a href="#1-1-二分查找" class="headerlink" title="1.1 二分查找"></a>1.1 二分查找</h4><ol>
-<li><p>其输入必须是一个有序的元素列表</p>
-</li>
-<li><p>如果要查找的元素包含在列表中，返回其位置，否则返回 null</p>
-</li>
-<li><p>一般而言，对于包含 n 个元素的列表，用二分法查找最多需要 logn 次</p>
-</li>
-<li><p>代码</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">binarySearch</span>(<span class="params">arr, item</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> low = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> high = arr.length - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (low &lt;= high) &#123;</span><br><span class="line">        <span class="keyword">let</span> mid = <span class="built_in">Math</span>.floor((low + high) / <span class="number">2</span>); <span class="comment">// Math.floor() 向下取整，即比它小的最大的整数</span></span><br><span class="line">        <span class="keyword">let</span> guess = arr[mid];</span><br><span class="line">        <span class="keyword">if</span> (guess == item) &#123;</span><br><span class="line">            <span class="keyword">return</span> mid;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (guess &gt; item) &#123; <span class="comment">// 如果我们猜的中间值比目标值大，即猜大了，则移动 high 到 mid - 1 的位置</span></span><br><span class="line">            high = mid - <span class="number">1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            low = mid + <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>算法</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>网络相关知识点</title>
-    <url>/2020/02/02/%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3/</url>
-    <content><![CDATA[<ul>
-<li><p>127.0.0.1 与 localhost 相同</p>
-</li>
-<li><p>restfulAPI角度考虑，每个请求方式都是有意义的</p>
-<h5 id="一-在浏览器地址栏中输入网址后发生的一些事"><a href="#一-在浏览器地址栏中输入网址后发生的一些事" class="headerlink" title="一. 在浏览器地址栏中输入网址后发生的一些事"></a>一. 在浏览器地址栏中输入网址后发生的一些事</h5><ol>
-<li>输入 <a href="http://www.baidu.com/">www.baidu.com</a></li>
-<li>请求百度服务器，百度服务器将相应的 HTML、CSS、JS、IMG 等文件返回给浏览器（响应）</li>
-<li>浏览器拿到资源后，和百度服务器之间的链接就断开了</li>
-<li>再次请求时，又一次建立链接</li>
-</ol>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>网络</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>零碎知识点</title>
-    <url>/2020/02/02/%E9%9B%B6%E6%95%A3%E7%9F%A5%E8%AF%86%E7%82%B9/</url>
-    <content><![CDATA[<ul>
-<li><p>异步async/同步sync</p>
-</li>
-<li><p>调用 setTimeout 函数会在一个时间段过去后在队列中添加一个消息。这个时间段作为函数的第二个参数被传入。如果队列中没有其它消息，消息会被马上处理。但是，如果有其它消息，setTimeout 消息必须等待其它消息处理完。因此第二个参数仅仅表示最少的时间 而非确切的时间。所以即使，时间设置为0，也是会照样先执行函数b</p>
-</li>
-<li><p>A callback is a function that is passed as an argument to another function and is executed after its parent function has completed.</p>
-</li>
-<li><p>关于回调函数和js单线程以及js异步机制</p>
-<p>我们都知道js是单线程的，这种设计模式给我们带来了很多的方便之处，我们不需要考虑各个线程之间的通信，也不需要写很多烧脑的代码，也就是说js的引擎只能一件一件事的去完成和执行相关的操作，所以所有需要执行的事情都像排队一样，等待着被触发和执行，可是如果这样的话，如果在队列中有一件事情需要花费很多的时间，那么后面的任务都将处于一种等待状态，有时甚至会出现浏览器假死现象，例如其中有一件正在执行的一个任务是一个死循环，那么会导致后续其他的任务无法正常执行，所以js在同步机制的缺陷下设计出了异步模式</p>
-<p>在异步执行的模式下，每一个异步的任务都有其自己一个或着多个回调函数，这样当前在执行的异步任务执行完之后，不会马上执行事件队列中的下一项任务，而是执行它的回调函数，而下一项任务也不会等当前这个回调函数执行完，因为它也不能确定当前的回调合适执行完毕，只要引它被触发就会执行</p>
-</li>
-</ul>
-<ul>
-<li><p><img src="https://lc-gold-cdn.xitu.io/719a8ec80f4212796598.png?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
-<p>js的单线程浏览器内核的多线程</p>
-<p>浏览器常驻三大线程:  <strong>js引擎线程，GUI渲染线程，浏览器事件触发线程</strong></p>
-<p>看到此图你是不是会豁然开朗许多，因为浏览器是一个多线程的执行环境，在浏览器的内核中分配了多个线程，最主要的线程之一即是js引擎的线程，同时js事件队列中的异步请求，交互事件触发，定时器等事件都是由浏览器的事件触发线程进行监听的，浏览器的事件触发线程被触发后会把任务加入到js 引擎的任务队列中，当js 引擎空闲时候就会开始执行该任务</p>
-</li>
-</ul>
-<p>  作者：硕儿的编程之路<br>  链接：<a href="https://juejin.im/post/58f71c720ce463006bcc464b">https://juejin.im/post/58f71c720ce463006bcc464b</a><br>  来源：掘金<br>  著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
-<ul>
-<li><h2 id="Javascript-回调是异步的吗？"><a href="#Javascript-回调是异步的吗？" class="headerlink" title="Javascript 回调是异步的吗？"></a>Javascript 回调是异步的吗？</h2><p>JavaScript 被认为是单线程脚本语言。单线程是指 JavaScript 一次执行一个代码块。当 JavaScript 忙于执行一个块时，它不可能移到下一个块。</p>
-<p>换句话说，我们可以认为 JavaScript 代码本质上总是阻塞的。但是这种阻塞性使我们无法在某些情况下编写代码，因为在这些情况下我们没有办法在执行某些特定任务后立即得到结果。</p>
-<p>我谈论的任务包括以下情况：</p>
-<ul>
-<li>通过对某些端点进行 API 调用来获取数据。</li>
-<li>通过发送网络请求从远程服务器获取一些资源（例如，文本文件、图像文件、二进制文件等）。</li>
-</ul>
-<p>为了处理这些情况，必须编写异步代码，而回调函数是处理这些情况的一种方法。所以从本质上上说，回调函数是异步的。</p>
-<h2 id="Javascript-回调地狱"><a href="#Javascript-回调地狱" class="headerlink" title="Javascript 回调地狱"></a>Javascript 回调地狱</h2><p>当多个异步函数一个接一个地执行时，会产生回调地狱。它也被称为厄运金字塔。</p>
-<h2 id="如何避免回调地狱？"><a href="#如何避免回调地狱？" class="headerlink" title="如何避免回调地狱？"></a>如何避免回调地狱？</h2><p>可以使用多种技术来避免回调地狱，如下所示。</p>
-<ol>
-<li>使用promise</li>
-<li>借助 async-await</li>
-<li>使用 async.js 库</li>
-</ol>
-<h3 id="使用-Async-js-库"><a href="#使用-Async-js-库" class="headerlink" title="使用 Async.js 库"></a>使用 Async.js 库</h3><p>让我们谈谈怎样用 async.js 库避免回调地狱。</p>
-<p>根据 async.js 官方网站的描述：<em>Async 是一个工具模块，它提供了直接、强大的函数来使用异步 JavaScript</em>。</p>
-<p>Async.js 总共提供约 70 个函数。现在，我们将仅讨论其中两个，即 <code>async.waterfall()</code> 和 <code>async.series()</code>。</p>
-<h4 id="async-waterfall"><a href="#async-waterfall" class="headerlink" title="async.waterfall()"></a>async.waterfall()</h4><p>当你要一个接一个地运行某些任务，然后将结果从上一个任务传到下一个任务时，这个函数非常有用。它需要一个函数“任务”数组和一个最终的“回调”函数，它会在“任务”数组中所有的函数完成后，或者用错误对象调用“回调”之后被调用。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var async &#x3D; require(&#39;async&#39;);</span><br><span class="line">async.waterfall([</span><br><span class="line">    function(callback) &#123;</span><br><span class="line">      &#x2F;*  </span><br><span class="line">        Here, the first argument value is null, it indicates that</span><br><span class="line">        the next function will be executed from the array of functions.</span><br><span class="line">        If the value was true or any string then final callback function</span><br><span class="line">        will be executed, other remaining functions in the array </span><br><span class="line">        will not be executed.</span><br><span class="line">      *&#x2F;</span><br><span class="line">        callback(null, &#39;one&#39;, &#39;two&#39;);</span><br><span class="line">    &#125;,</span><br><span class="line">    function(param1, param2, callback) &#123;</span><br><span class="line">        &#x2F;&#x2F; param1 now equals &#39;one&#39; and param2 now equals &#39;two&#39;</span><br><span class="line">        callback(null, &#39;three&#39;);</span><br><span class="line">    &#125;,</span><br><span class="line">    function(param1, callback) &#123;</span><br><span class="line">        &#x2F;&#x2F; param1 now equals &#39;three&#39;</span><br><span class="line">        callback(null, &#39;done&#39;);</span><br><span class="line">    &#125;</span><br><span class="line">], function (err, result) &#123;</span><br><span class="line">    &#x2F;*</span><br><span class="line">      This is the final callback function.</span><br><span class="line">      result now equals &#39;done&#39;</span><br><span class="line">    *&#x2F;</span><br><span class="line">&#125;);</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
-
-<h4 id="async-series"><a href="#async-series" class="headerlink" title="async.series()"></a>async.series()</h4><p>当你要运行一个函数然后在所有函数成功执行后需要获取结果时，它很有用。  <code>async.waterfall()</code> 和 <code>async.series()</code> 之间的主要区别在于， <code>async.series()</code> 不会将数据从一个函数传递到另一个函数。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">async.series([</span><br><span class="line">    function(callback) &#123;</span><br><span class="line">        &#x2F;&#x2F; do some stuff ...</span><br><span class="line">        callback(null, &#39;one&#39;);</span><br><span class="line">    &#125;,</span><br><span class="line">    function(callback) &#123;</span><br><span class="line">        &#x2F;&#x2F; do some more stuff ...</span><br><span class="line">        callback(null, &#39;two&#39;);</span><br><span class="line">    &#125;</span><br><span class="line">],</span><br><span class="line">&#x2F;&#x2F; optional callback</span><br><span class="line">function(err, results) &#123;</span><br><span class="line">    &#x2F;&#x2F; results is now equal to [&#39;one&#39;, &#39;two&#39;]</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ul>
-<p>  作者：前端先锋<br>  链接：<a href="https://juejin.im/post/5dc1474df265da4d1518ee76">https://juejin.im/post/5dc1474df265da4d1518ee76</a><br>  来源：掘金<br>  著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
-<ul>
-<li><p>闭包允许从内部函数访问外部函数的作用域</p>
-</li>
-<li><h2 id="JS-文档碎片"><a href="#JS-文档碎片" class="headerlink" title="JS 文档碎片"></a>JS 文档碎片</h2><ol>
-<li><p> 在浏览器中，我们一旦把节点添加到 document.body（或者其他节点）中，页面就会更新并反映出这个变化</p>
-</li>
-<li><p> 对于少量的更新，一条条循环插入是可行的</p>
-</li>
-<li><p> 当我们要向 document 中添加大量数据时(比如 1w 条)，逐条添加节点的过程就可能会十分缓慢</p>
-</li>
-<li><p> 方案解决一 ：先创建个盒子 div ，将添加的节点统一装到盒子中，最后一次性将这个盒子加到需要添加的地方（缺点：多了一个 div）</p>
-</li>
-<li><p> 方案解决二 ：使用文档碎片，文档碎片其实就相当于一个盒子，与上面的方案一类似，只不过不会产生多余的标签。</p>
-</li>
-<li><p> 文档碎片的创建：<code>var oFragment = document.createDocumentFragment();</code></p>
-</li>
-<li><p>代码示例</p>
- <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> oFragment = <span class="built_in">document</span>.createDocumentFragment();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</span><br><span class="line">  <span class="keyword">var</span> li = <span class="built_in">document</span>.createElement(<span class="string">&quot;li&quot;</span>);</span><br><span class="line">  li.innerHTML = i;</span><br><span class="line">  oFragment.appendChild(li);</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">document</span>.body.appendChild(oFragment);</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<h2 id="JS-forEach-的用法"><a href="#JS-forEach-的用法" class="headerlink" title="JS forEach 的用法"></a>JS forEach 的用法</h2><ol>
-<li><code>forEach(function(currentValue, index, arr), thisValue)</code>：用于调用数组的每个元素，并将元素传递给回调函数</li>
-<li>currentValue 参数必须有，代表当前元素</li>
-<li>index 为可选参数，代表当前元素索引</li>
-<li>arr 为可选参数，代表当前操作数组</li>
-<li>thisValue 参数基本不用，知道即可</li>
-<li>IE8 及以下不兼容</li>
-</ol>
-<h5 id="二-FORM-表单的三个属性"><a href="#二-FORM-表单的三个属性" class="headerlink" title="二. FORM 表单的三个属性"></a>二. FORM 表单的三个属性</h5><ol>
-<li><p>method</p>
-<ul>
-<li><p>GET 方式会在地址栏处显示出提交的数据，看起来安全点，且 GET 传输的数据长度有限，同时 GET 有缓存，如果该 GET 请求的 URL是第一次请求的话，会请求服务器，从数据库中获取数据；如果该 GET 请求的 URL 不是第一次请求的话，那么该 URL 就不会请求服务器，IE 浏览器会直接从缓存中拿到上次该 URL 获取的数据，从而导致数据不同步（优点是看到请求的 URL 相同时从缓存里拿节省网络资源，缺点是不能实时更新，仅 IE 浏览器）</p>
-</li>
-<li><p>去除 GET 的缓存功能：在 URL 后加一个时间戳使得每次请求的 URL 都不同</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> time = <span class="keyword">new</span> <span class="built_in">Date</span>().getTime();</span><br><span class="line"><span class="keyword">var</span> data = <span class="string">&quot;username=lb&quot;</span> + <span class="string">&quot;&amp;time=&quot;</span> + time;</span><br><span class="line">xml.open(<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;getNews.php&quot;</span> + <span class="string">&quot;?&quot;</span> + data, <span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>POST 方式</p>
-<ul>
-<li>数据放到 send() 方法中，需要设置请求头信息</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>action：提交的目标地址</p>
-</li>
-<li><p>enctype：</p>
-<ul>
-<li>规定在发送表单数据之前如何对其进行编码</li>
-<li>默认不写时，值为<code>application/x-www-form-urlencoded</code>，即在发送前编码所有字符（默认）</li>
-<li>在使用包含文件上传控件的表单时(<code>&lt;input type=&#39;file&#39;&gt;</code>)，值必须设置为 <code>multipart/form-data</code></li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>others</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>HTTP 与 Nginx 部署</title>
-    <url>/2020/12/15/HTTP%20%E4%B8%8E%20Nginx%20%E9%83%A8%E7%BD%B2/</url>
+    <title>网络通讯与 HTTP</title>
+    <url>/2020/12/15/%E7%BD%91%E7%BB%9C%E9%80%9A%E8%AE%AF%E4%B8%8E%20HTTP/</url>
     <content><![CDATA[<h3 id="一-网站服务通讯过程"><a href="#一-网站服务通讯过程" class="headerlink" title="一. 网站服务通讯过程"></a>一. 网站服务通讯过程</h3><p><strong>网站服务通讯过程原理(简易版)</strong></p>
-<p>首先用户在浏览器中输入域名，然后会进行DNS解析。获取到 IP 地址后，客户端和服务端通过 TCP 三次握手建立连接，然后客户端发送请求，服务端进行响应，最后会经过四次挥手断开连接。</p>
+<p>首先用户在浏览器中输入域名，然后会进行 DNS 解析。获取到 IP 地址后，客户端和服务端通过 TCP 三次握手建立连接，然后客户端发送请求，服务端进行响应，最后会经过四次挥手断开连接。</p>
 <p><strong>网站服务通讯过程原理/HTTP 协议请求的工作流程(描述版)</strong></p>
 <ol>
 <li>终端用户在 Web 浏览器地址栏输入访问地址 <a href="http://www.baidu.com/">www.baidu.com</a> 。</li>
 <li>Web 浏览器请求 DNS 服务器把域名 <a href="http://www.baidu.com/">www.baidu.com</a> 转换为 Web 服务器的 IP 地址。</li>
-<li>Web 浏览器将端口号（默认 80）从访问地址（URL）中解析出来。</li>
+<li>Web 浏览器将端口号 (默认 80) 从访问地址 (URL) 中解析出来。</li>
 <li>Web 浏览器通过解析后的 IP 地址及端口号与 Web 服务器之间建立一条 TCP 连接 (三次握手)。</li>
 <li>建立 TCP 连接后，Web 浏览器向 Web 服务器发送一条 HTTP 请求报文。</li>
 <li>Web 服务器响应并读取浏览器的请求信息，然后返回一条 HTTP 响应报文。</li>
@@ -1589,7 +249,7 @@
 <p><strong>Windows 主机查看 DNS 的相关方式</strong></p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看 Windows 本地缓存的 DNS 解析记录</span></span><br><span class="line">ipconfig /displaydns</span><br><span class="line"><span class="meta">#</span><span class="bash"> 清除 Windows 本地缓存的 DNS 解析记录</span></span><br><span class="line">ipconfig /flushdns</span><br><span class="line"><span class="meta">#</span><span class="bash"> Windows 系统下 hosts 域名解析记录的位置：C:\Windows\system32\drivers\etc\hosts</span></span><br></pre></td></tr></table></figure>
 
-<p><strong>DNS 概念与作用</strong></p>
+<h3 id="二-DNS-介绍"><a href="#二-DNS-介绍" class="headerlink" title="二. DNS 介绍"></a>二. DNS 介绍</h3><p><strong>DNS 概念与作用</strong></p>
 <p>DNS，全称为 Domain Name System ，其主要作用是把网站域名解析为对应的 IP 地址。从域名到 IP 的解析过程，称作 A 记录，即 Address Record。除了 A 记录解析，DNS 还可以完成很多功能，例如：</p>
 <ul>
 <li>设置 CNAME 别名记录，这个别名解析功能常被 CDN 加速服务商应用。</li>
@@ -1601,13 +261,13 @@
 <p><strong>DNS 解析流程</strong></p>
 <ol>
 <li>客户端用户在浏览器里输入 <a href="http://www.baidu.com/">www.baidu.com</a> 网站地址后回车，系统首先会查找系统本地的 DNS 缓存及 hosts 文件信息，确定是否存在 <a href="http://www.baidu.com/">www.baidu.com</a> 域名对应的 IP解析记录，如果有就直接获取到 IP 地址，然后去访问这个 IP 地址对应的 <a href="http://www.baidu.com/">www.baidu.com</a> 域名的服务器。一般第一次请求时，DNS 缓存是没有解析记录的，而 hosts 多为内部临时测试使用。</li>
-<li>如果客户端本地 DNS 缓存及 hosts 文件没有 <a href="http://www.baidu.com/">www.baidu.com</a> 域名对应的解析记录，那么系统会把浏览器的解析请求发送给客户端本地设置的 DNS 服务器地址（通常称此 DNS 为 LDNS，即 Local DNS）解析，如果 LDNS 服务器的本地缓存有对应的解析记录就会直接返回 IP 地址给客户端，如果没有，则 LDNS 会负责继续请求其他的 DNS 服务器。</li>
+<li>如果客户端本地 DNS 缓存及 hosts 文件没有 <a href="http://www.baidu.com/">www.baidu.com</a> 域名对应的解析记录，那么系统会把浏览器的解析请求发送给客户端本地设置的 DNS 服务器地址 (通常称此 DNS 为 LDNS，即 Local DNS) 解析，如果 LDNS 服务器的本地缓存有对应的解析记录就会直接返回 IP 地址给客户端，如果没有，则 LDNS 会负责继续请求其他的 DNS 服务器。</li>
 <li>LDNS 从 DNS 系统的(“.”)根开始请求对 <a href="http://www.baidu.com/">www.baidu.com</a> 域名的解析，根 DNS 服务器在全球一共有 13 台，根服务器下面是没有 <a href="http://www.baidu.com/">www.baidu.com</a> 域名解析记录的，但是根下面有 <a href="http://www.baidu.com/">www.baidu.com</a> 对应的顶级域 .com 的解析记录，因此，根会把.com 对应的 DNS 服务器地址返回给 LDNS。</li>
 <li>LDNS 获取到 .com 对应的 DNS 服务器地址后，就会去 .com 服务器请求 <a href="http://www.baidu.com/">www.baidu.com</a> 域名的解析，而 .com 服务器下面也没有 <a href="http://www.baidu.com/">www.baidu.com</a> 域名对应的解析记录，但是有 baidu.com 域名的解析记录，因此 .com 服务器会把 baidu.com 对应的 DNS 服务器地址返回给 LDNS。</li>
-<li>同理，LDNS 获取到 baidu.com 对应的 DNS 服务器地址后，会去 baidu.com服务器请求对 <a href="http://www.baidu.com/">www.baidu.com</a> 域名的解析，baidu.com 域名对应的 DNS 服务器是该域名的授权 DNS 服务器，这个 DNS 服务器是企业购买域名时用于管理解析的服务器（也可能是自建的授权 DNS 服务器），这个服务器会有与 <a href="http://www.baidu.com/">www.baidu.com</a> 对应的 IP 解析记录，如果此时没有，就表示企业的域名人员没有为 <a href="http://www.baidu.com/">www.baidu.com</a> 域名做解析，即网站还没架设好。</li>
+<li>同理，LDNS 获取到 baidu.com 对应的 DNS 服务器地址后，会去 baidu.com服务器请求对 <a href="http://www.baidu.com/">www.baidu.com</a> 域名的解析，baidu.com 域名对应的 DNS 服务器是该域名的授权 DNS 服务器，这个 DNS 服务器是企业购买域名时用于管理解析的服务器 (也可能是自建的授权 DNS 服务器) ，这个服务器会有与 <a href="http://www.baidu.com/">www.baidu.com</a> 对应的 IP 解析记录，如果此时没有，就表示企业的域名人员没有为 <a href="http://www.baidu.com/">www.baidu.com</a> 域名做解析，即网站还没架设好。</li>
 <li>LDNS 把来自授权 DNS 服务器的与 <a href="http://www.baidu.com/">www.baidu.com</a> 对应的 IP 解析记录发给客户端浏览器，并且 LDNS 会在本地把域名和 IP 的对应解析记录缓存起来，以便下一次更快地返回相同解析请求的记录。至此，整个 DNS 的解析流程就完成了。</li>
 </ol>
-<p><strong>HTTP 协议初识</strong></p>
+<h3 id="三-HTTP-协议"><a href="#三-HTTP-协议" class="headerlink" title="三. HTTP 协议"></a>三. HTTP 协议</h3><p><strong>HTTP 协议初识</strong></p>
 <p>HTTP 协议，全称 HyperText Transfer Protocol，中文名为超文本传输协议。是互联网上常用的通信协议之一。它有很多的应用，但最流行的就是用于 Web 浏览器和 Web 服务器之间的通信，即 www 应用或称 Web 应用。</p>
 <p>HTTP 协议属于 OSI 模型中的第七层应用层协议。</p>
 <p>HTTP 协议的 www 服务应用的默认端口为 80，另外一个加密的 www 服务应用 HTTPS 的默认端口为 443，主要用于网银、支付等和钱相关的业务。</p>
@@ -1750,7 +410,7 @@
 <tr>
 <td align="left">205</td>
 <td align="left">Reset Content</td>
-<td align="left">重置内容。服务器处理成功，用户终端（例如：浏览器）应重置文档视图。可通过此返回码清除浏览器的表单域</td>
+<td align="left">重置内容。服务器处理成功，用户终端 (例如：浏览器) 应重置文档视图。可通过此返回码清除浏览器的表单域</td>
 </tr>
 <tr>
 <td align="left">206</td>
@@ -1760,7 +420,7 @@
 <tr>
 <td align="left">300</td>
 <td align="left">Multiple Choices</td>
-<td align="left">多种选择。请求的资源可包括多个位置，相应可返回一个资源特征与地址的列表用于用户终端（例如：浏览器）选择</td>
+<td align="left">多种选择。请求的资源可包括多个位置，相应可返回一个资源特征与地址的列表用于用户终端 (例如：浏览器) 选择</td>
 </tr>
 <tr>
 <td align="left"><code>301</code></td>
@@ -1820,7 +480,7 @@
 <tr>
 <td align="left"><code>404</code></td>
 <td align="left">Not Found</td>
-<td align="left">服务器无法根据客户端的请求找到资源（网页）。通过此代码，网站设计人员可设置”您所请求的资源无法找到”的个性页面</td>
+<td align="left">服务器无法根据客户端的请求找到资源 (网页) 。通过此代码，网站设计人员可设置”您所请求的资源无法找到”的个性页面</td>
 </tr>
 <tr>
 <td align="left">405</td>
@@ -1870,7 +530,7 @@
 <tr>
 <td align="left">414</td>
 <td align="left">Request-URI Too Large</td>
-<td align="left">请求的URI过长（URI通常为网址），服务器无法处理</td>
+<td align="left">请求的URI过长 (URI通常为网址) ，服务器无法处理</td>
 </tr>
 <tr>
 <td align="left">415</td>
@@ -1962,7 +622,7 @@
 <p><strong>HTTP 请求报文结构</strong></p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 模拟发送请求，查看请求与响应数据包</span></span><br><span class="line">curl -v www.jd.com # 利用 curl 命令的-v 参数，查看访问网站请求与响应信息</span><br><span class="line">wget --debug www.baidu.com # 利用 wget 命令的--debug 参数，查看访问网站请求与响应信息</span><br></pre></td></tr></table></figure>
 
-<p>从 Web 客户端发往 Web 服务器的 HTTP 报文，称为请求报文 (Request Message) 。HTTP 请求报文由请求行、请求头部（header）、空行和请求报文主体几个部分组成。</p>
+<p>从 Web 客户端发往 Web 服务器的 HTTP 报文，称为请求报文 (Request Message) 。HTTP 请求报文由请求行、请求头部 (header) 、空行和请求报文主体几个部分组成。</p>
 <p>HTTP 请求报文格式说明见下：</p>
 <table>
 <thead>
@@ -2000,7 +660,7 @@
 <p>最后一个请求头部信息之后是一个空行，通过发送回车符和换行符，通知 Web 服务器空行以下不会有请求头部的信息了。</p>
 <p>请求报文主体包含了要发送给 Web 服务器的数据信息。请求报文主体不会应用于 HTTP 的 GET 命令方法，而是应用与 POST 方法。POST 方法适用于需要客户填写表单的场合。</p>
 <p><strong>HTTP 响应数据包结构</strong></p>
-<p>HTTP 响应报文由起始行、响应头部（header）、空行和相应报文主体这几个部分组成。</p>
+<p>HTTP 响应报文由起始行、响应头部 (header) 、空行和相应报文主体这几个部分组成。</p>
 <p>HTTP 响应报文格式说明见下：</p>
 <table>
 <thead>
@@ -2033,48 +693,172 @@
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Server: Tengine # 告知客户端服务端使用web程序</span><br><span class="line">Content-Type: text/html # 文档的 MIME 类型</span><br><span class="line">Content-Length: 154 # 响应数据的字节大小</span><br><span class="line">Connection: keep-alive # 使用 TCP 长链接方式进行通讯</span><br><span class="line">Date: Tue, 15 Dec 2020 01:46:59 GMT # 日期</span><br><span class="line">Location: https://zeuslb.github.io/ # 指定跳转后的地址信息</span><br></pre></td></tr></table></figure>
 
 <p>最后一个响应头部信息之后是一个空行，通过发送回车符和换行符，通知客户端空行下文无头部信息了。</p>
-<p>响应报文主体：响应报文主体中装载了要返回给客户端的数据。这些数据可以是文本，也可以是二进制的（如图<br>片、视频）。</p>
-<h3 id="二-网站服务资源类型介绍"><a href="#二-网站服务资源类型介绍" class="headerlink" title="二. 网站服务资源类型介绍"></a>二. 网站服务资源类型介绍</h3><h3 id="三-网站服务访问度量方式"><a href="#三-网站服务访问度量方式" class="headerlink" title="三. 网站服务访问度量方式"></a>三. 网站服务访问度量方式</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">awk &#x27;&#123;print $1&#125;&#x27; /var/log/nginx/access.log</span><br><span class="line">uniq xxx # 对上下内容进行去重，与 sort 结合使用即可实现去重</span><br><span class="line">awk &#x27;&#123;print $1&#125;&#x27; /var/log/nginx/access.log | sort | uniq -c # 去重显示每个重复次数</span><br><span class="line">awk &#x27;&#123;print $1&#125;&#x27; /var/log/nginx/access.log | sort | uniq | wc -l # 显示总的数量</span><br></pre></td></tr></table></figure>
+<p>响应报文主体：响应报文主体中装载了要返回给客户端的数据。这些数据可以是文本，也可以是二进制的 (如图<br>片、视频) 。</p>
+<h3 id="四-网站服务资源类型介绍"><a href="#四-网站服务资源类型介绍" class="headerlink" title="四. 网站服务资源类型介绍"></a>四. 网站服务资源类型介绍</h3><p><strong>媒体资源</strong></p>
+<p>互联网上的数据有很多不同的类型，Web 服务器会把通过 Web 传输的每个对象都打上 MIME 类型 (即 MIMEtype) 的数据格式标签。最初设计 MIME (Multipurpose Internet Mail Extension，多用途因特网邮件扩展) 是为了解决在不同的电子邮件系统之间搬移报文时存在的问题。后来 HTTP 也支持了这个功能，用它来描述数据并标记不同的数据内容类型。</p>
+<p>当 Web 服务器响应 HTTP 请求时，会为每一个 HTTP 对象数据加一个 MIME 类型，当 Web 浏览器获取到服务器返回的对象时，会去查看相关的 MIME 类型，并进行相应处理。</p>
+<p>MIME 类型存在与 HTTP 响应报文的响应头部信息里，它是一种文本标记，表示一种主要的对象类型和一个特定的子类型，中间由一条斜杠来分割。生产场景最常见的 MIME 类型见下：</p>
+<table>
+<thead>
+<tr>
+<th>MIME 类型</th>
+<th>文件类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>text/html</td>
+<td>html、htm、shtml 文本类型</td>
+</tr>
+<tr>
+<td>text/css</td>
+<td>css 文本类型</td>
+</tr>
+<tr>
+<td>text/xml</td>
+<td>xml 文本类型</td>
+</tr>
+<tr>
+<td>image/gif</td>
+<td>gif 图像类型</td>
+</tr>
+<tr>
+<td>image/jpeg</td>
+<td>jpeg、jpg 图像类型</td>
+</tr>
+<tr>
+<td>application/javascripts</td>
+<td>js 文本类型</td>
+</tr>
+<tr>
+<td>text/plain</td>
+<td>txt 文本类型</td>
+</tr>
+<tr>
+<td>application/json</td>
+<td>json 文本类型</td>
+</tr>
+<tr>
+<td>video/mp4</td>
+<td>mp4 视频类型</td>
+</tr>
+<tr>
+<td>video/quicktime</td>
+<td>mov 视频类型</td>
+</tr>
+<tr>
+<td>video/x-flv</td>
+<td>flv 视频类型</td>
+</tr>
+<tr>
+<td>video/x-ms-wmv</td>
+<td>wmv 视频类型</td>
+</tr>
+<tr>
+<td>video/x-msvideo</td>
+<td>avi 视频类型</td>
+</tr>
+</tbody></table>
+<p>可以在 Nginx 配置文件 mime.types 中查看支持的媒体类型。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">less /etc/nginx/mime.types</span><br></pre></td></tr></table></figure>
 
-<h3 id="四-网站服务初识"><a href="#四-网站服务初识" class="headerlink" title="四. 网站服务初识"></a>四. 网站服务初识</h3><h3 id="五-Nginx-部署"><a href="#五-Nginx-部署" class="headerlink" title="五. Nginx 部署"></a>五. Nginx 部署</h3><p><strong>部署方式一：官方源安装</strong></p>
-<p>使用官方源安装的目录结构会比较标准，同时可以下载最新的稳定版。</p>
-<ol>
-<li><p>更新 yum 下载源(nginx 官方网站：nginx.org)</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 官方参考 http://nginx.org/en/linux_packages.html<span class="comment">#RHEL-CentOS</span></span></span><br><span class="line">vim /etc/yum.repos.d/nginx.repo</span><br><span class="line">[nginx-stable]</span><br><span class="line">name=nginx stable repo</span><br><span class="line">baseurl=http://nginx.org/packages/centos/$releasever/$basearch/</span><br><span class="line">gpgcheck=1</span><br><span class="line">enabled=1</span><br><span class="line">gpgkey=https://nginx.org/keys/nginx_signing.key</span><br><span class="line">module_hotfixes=true</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>下载安装软件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install -y nginx</span><br><span class="line">nginx -V</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<p><strong>部署方式二：编译安装</strong></p>
-<ol>
-<li><p>解决依赖问题</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install -y pcre-devel openssl-devel</span><br><span class="line"><span class="meta">#</span><span class="bash"> pcre-devel 可以实现兼容 perl 语言的正则表达式</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> openssl-devel 可以实现基于 HTTPS 协议的数据传输</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>创建服务进程管理用户</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">useradd nginx -M -s /sbin/nologin</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>下载编译安装源码包</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget http://nginx.org/download/nginx-1.18.0.tar.gz</span><br><span class="line">tar xf nginx-1.18.0.tar.gz</span><br><span class="line">cd nginx-1.18.0</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>编译安装</p>
+<p><strong>静态网页资源</strong></p>
+<p>静态网页是相对于动态网页而言的，是指没有后台数据库、不含程序 (如 PHP、JSP、ASP) 、不可交互的网页。</p>
+<p>静态网页资源的特点是：开发者编写的是什么，它显示的就是什么，一旦编写完成，就不会有任何改变。静态网页的维护和更新相对比较麻烦，每个不同的网页都需要单独编辑更新，静态网页一般适用于更新较少的宣传展示型网站。</p>
+<p>静态网页资源的对应程序及资源文件的常见扩展名为：</p>
 <ul>
-<li><p>配置</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">./configure --help</span><br><span class="line"><span class="meta">#</span><span class="bash"> 常见参数说明</span></span><br><span class="line">--prefix=PATH # 指定软件程序的安装路径 /app/nginx-1.18.0</span><br><span class="line">--sbin-path=PATH # 软件有关命令文件的保存路径 /usr/bin</span><br><span class="line">--modules-path=PATH # 软件生成的模块保存路径</span><br><span class="line">--conf-PATH # 软件配置文件保存路径</span><br><span class="line">--error</span><br><span class="line">--with-xxx # 可以使用的功能模块</span><br><span class="line">--without-xxx # 指定不使用的功能模块</span><br><span class="line">./configure  --prefix=/app/nginx-1.18 --user=nginx --group=nginx  --with-http_ssl_module  --with-http_stub_status_module</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>编译</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">make</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>安装</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">make install</span><br></pre></td></tr></table></figure>
-</li>
+<li>纯文本类程序或文件，如 .html、.htm、.xml、.shtml、.js、.css 等。</li>
+<li>图片类文件或数据文档，如 .jpg、.gif、.png、.bmp、.txt、.doc、.ppt 等。</li>
+<li>视频类流媒体文件，如 .mp4、.swf、.avi、.wmv、.flv 等。</li>
+</ul>
+<p>静态的网页的优点是网页内容是固定不变的，容易被搜索引擎收录，且网页程序在用户浏览器端解析，由于服务器端不进行解析，并且不需要读取数据库，因此服务器端可以接受更多的并发访问。</p>
+<p>静态网页的缺点是开发难度大，数据变化时维护相对比较困难，且静态网页的交互性差，在程序的功能实现方面有较大的限制，比如登录、在线交谈等功能的实现。</p>
+<p><strong>静态网页的架构思想</strong></p>
+<p>在高并发、高访问量的场景下做架构优化，涉及的关键环节就是把动态网页转成静态网页，而不是直接请求数据库和动态服务器，并且可以把静态内容推送到前端缓存 (或 CDN) 中提供服务，这样就可以提升用户体验，节约服务器和维护成本。</p>
+<p><strong>动态网页资源</strong></p>
+<p>所谓的动态网页是与静态网页相对而言的，一般在动态网页网址中会有标志性的符号比如 <code>&amp;</code> 或者 <code>?</code> 等。动态网页并不是独立存在于服务器上的网页文件，当用户请求服务器上的动态程序时，服务器解析这些程序并可能通过读取数据库来返回一个完整的网页内容。</p>
+<p>动态网页中的 “?” 在搜索引擎的收录方面存在一定的问题，搜索引擎一般不会从一个网站的数据库中访问全部网页，或者出于技术等方面的考虑，搜索蜘蛛一般不会去抓取网址中 “?” 后面的内容，因此在企业通过搜索引擎进行推广时，需要针对采用动态网页的网站做一定的技术处理 (伪静态技术) ，以便适应搜索引擎的抓取要求。</p>
+<p><strong>动态网页的架构思想</strong></p>
+<p>一般来说，静态网页的性能效率是动态网页的 10-30 倍。且动态网站效率很差，并发能力也很低，在高并发场景中，应尽可能转换成静态网页提供服务。动态转静态几乎是所有高并发网站必备的架构方案思路，也是高级架构师的职责所在。<br>此外，动态转静态也是根据业务需求设计，例如，对于更新频繁的网站，如果设计不好就可能会产生数据不一致的情况，即用户看到的数据不是网站最新的内容，而是静态的内容。</p>
+<p><strong>关于静态网页和动态网页的一点说明</strong></p>
+<p>从前端开发的角度来说，静态网页是指不使用 HTML5/CSS3 动画效果 或者 js 交互的网页，动态网页是指使用了上述技术的网页。</p>
+<p>从整体网站架构来看，静态网页/网站指的是不使用数据库等交互性软件实现的网站，而动态网站一般均包含数据库，且实现方式除了用 html 、css 、js 等技术实现基本的页面效果外，还用到了 php 、jsp 、python 等语言与后端服务器进行了交互。</p>
+<p><strong>伪静态网页</strong></p>
+<p>顾名思义，伪静态就是通过某些技术 (如 rewrite) 把动态网页的 URL 地址伪装成静态网页 URL 地址。从网站的 URL 地址看，伪静态表面上看起来是静态内容 (如地址结尾带 html) ，但这其实是通过 rewrite 规则实现的 URL 地址重写。改写后的 URL 地址规范、美观，有利于搜索引擎抓取，以及提升用户访问体验。</p>
+<p>伪静态网页并不能提升网站的访问效率，从理论上说还会降低网站的性能，没有动态转静态网页效率高，不过，<br>对于一些并发不是很大的网站来说，或者是硬件资源充足的网站来说，伪静态还是一个不错的功能。</p>
+<p><strong>拓展：生产 Web 架构优化实战方案</strong></p>
+<p><a href="http://oldboy.blog.51cto.com/2561410/736710">http://oldboy.blog.51cto.com/2561410/736710</a></p>
+<p><a href="https://edu.51cto.com/course/3093.html">https://edu.51cto.com/course/3093.html</a></p>
+<h3 id="五-URI、URL、URN-初识"><a href="#五-URI、URL、URN-初识" class="headerlink" title="五. URI、URL、URN 初识"></a>五. URI、URL、URN 初识</h3><p><strong>URL</strong></p>
+<p>URL，全称为 Uniform Resource Location，即统一资源定位符，是因特网上标准的资源唯一地址。</p>
+<p>URL 的格式/组成为 <code>协议://主机ip地址或者域名[:端口号]/资源地址</code>，其中端口号可以省略，默认为 80 。</p>
+<p><strong>URI</strong></p>
+<p>URI，全称为 Uniform Resource Identifier，即统一资源标识符，是一个用于标识某一互联网资源名称的字符串。URL 是 URI 命名机制的一个子集。</p>
+<p><strong>URN</strong></p>
+<p>Uniform Resource Name，统一资源命名，是通过名字来标识资源，比如 <code>mailto:linus@gmail.com</code> 。</p>
+<p><strong>URI、URL、URN 的区别</strong></p>
+<p>URI 是以一种抽象的，高层次概念定义统一资源标识，而 URL 和 URN 则是具体的资源标识的方式。URL 和 URN 都是一种 URI。笼统地说，每个 URL 都是 URI，但不一定每个 URI 都是 URL。这是因为 URI 还包括一个子类，即统一资源名称 (URN)，它命名资源但不指定如何定位资源。上面的 mailto 就是 URN 的一种示例。</p>
+<h3 id="六-网站服务访问度量方式"><a href="#六-网站服务访问度量方式" class="headerlink" title="六. 网站服务访问度量方式"></a>六. 网站服务访问度量方式</h3><p><strong>IP</strong></p>
+<p>IP (独立 IP) ，即 Internet Protocol，这里指独立 IP 数，独立 IP 数是指不同 IP 地址的计算机访问网站时被计的总次数。一般一天内 (00:00-24:00) 相同 IP 地址的客户端访问网站页面只会被计一次，记录独立 IP 的时间可为一天或一个月，目前通用的标准为 “一天” 。</p>
+<p>通过独立 IP 数度量网站访问量，和实际的访问情况不是很匹配。国内的企业、学校等多数是用 NAT 上网的，一个独立 IP 背后可能有数十上百个客户端访问。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 在 Nginx 服务端通过日志文件模拟实现统计 ip</span></span><br><span class="line">awk &#x27;&#123;print $1&#125;&#x27; /var/log/nginx/access.log</span><br><span class="line">uniq xxx # 对上下内容进行去重，与 sort 结合使用即可实现去重</span><br><span class="line">awk &#x27;&#123;print $1&#125;&#x27; /var/log/nginx/access.log | sort | uniq -c # 去重显示每个重复次数</span><br><span class="line">awk &#x27;&#123;print $1&#125;&#x27; /var/log/nginx/access.log | sort | uniq | wc -l # 显示总的数量</span><br></pre></td></tr></table></figure>
+
+<p>对 IP 的度量方法见下：</p>
+<ul>
+<li>分析所有 Web 服务器的访问日志信息，对 IP 地址段去重后计数</li>
+<li>在网站的每一个 (所有) 页面结尾，嵌入 JS 等统计程序代码，待用户加载网页后，IP 即传给统计 IP 的服务器，这种方法一般被第三方统计公司或在企业内部开发日志分析程序时使用。</li>
+<li>用第三方大家比较信任的统计工具，例如：谷歌的统计 (GA) 。</li>
+</ul>
+<p><strong>PV</strong></p>
+<p>PV (访问量) 即 Page View，中文翻译为页面浏览，即页面浏览量或点击量，不管客户端是不是相同，也不管 IP 是不是相同，用户只要访问网站页面就会被计算 PV，一次计一个 PV。</p>
+<p>PV 的具体度量方法就是从客户浏览器发出一个对 Web 服务器的请求 (Request) ，Web 服务器接到这个请求后，将该请求对应的网页 (Page) 发送给浏览器，这样就产生了一个 PV。这里有一个问题，就是只要这个请求发送给了浏览器，无论这个页面是否完全打开 (或下载完成) ，都会被计数 (1 次为 1 个 PV) ，一般为了防止用户快速刷 PV，很多网站会把 PV 的统计程序放在页面的最下面。</p>
+<p>用 PV 衡量网站时，PV 数反映的是浏览某网站的页面数量，每刷新一次页面也算一次。因此，可以说 PV 数与来访用户的数量成正比，但 PV 数并不是真正的页面来访者数量，而是网站被访问的页面数量，因为一个来访者可能产生多个 PV。</p>
+<p>一个来访者访问网站，可能产生若干 PV 数，但是独立 IP 数就只有 1 个，因此，如果对比一个网站的独立 IP 数和 PV 数，不难看出，PV 数一定会大于等于独立 IP 数，其比例视网站的业务而定，对于分类门户，可能会达到10:1，甚至更多。</p>
+<p>对 PV 的度量方法见下：</p>
+<ul>
+<li>分析 Web 服务的访问日志 (需要排除 JS、CSS 及各种图片的日志信息) ，只计算 HTML、PHP 等页面数量。</li>
+<li>在网站的每一个页面结尾，嵌入 JS 等统计程序代码，待用户加载网页后，访问数量即传给统计 PV 的服务器，这种方法一般被第三方统计公司或企业内部开发日志分析程序时使用。</li>
+<li>用第三方大家比较信任的统计工具，例如：谷歌的统计 (GA) </li>
+</ul>
+<p><strong>UV</strong></p>
+<p>UV (独立访客) 即 Unique Visitor，同一个客户端 (PC 或移动端) 访问网站被计为一个访客。一天 (00：00-24:00) 内相同的客户端访问同一个网站只计一次 UV。UV 一般是以客户端 Cookie 等技术作为统计依据的，实际统计会有误差。</p>
+<p>考虑到一台客户端计算机可能会有多人使用，因此，UV (独立访客) 实际上并不一定是独立的自然人访问。</p>
+<p>对 UV 的度量方法见下：</p>
+<ul>
+<li>通过客户端 HTTP 请求报文分析：如果这些请求满足一些共同特征，比如来自同一个 IP 地址，且浏览器版本和操作系统版本相同，请求时间又相近等，那么就可以认为这些请求是来自于同一个客户端，那么多个页面访问也只算一个 UV。共同特征的定义是由服务器方决定的。通常，用 IP 地址+其它特征共同来定义的情况较多。但此种度量方法无法解决以下问题，例如：多个人的计算机软硬件雷同，并且是一个公司或学校的人；多个人共用一个计算机等情况。</li>
+<li>通过 Cookie 鉴别：当客户端第一次访问某个网站服务器时，网站服务器会给这个客户端的计算机发出一个 Cookie，通常放在这个客户端计算机的 C 盘当中。在这个 Cookie 中会分配一个独一无二的编号，这其中会记录一些访问服务器的信息，如访问时间、访问了哪些页面等等。当你下次再访问这个服务器的时候，服务器就可以直接从你的计算机中找到上一次放进去的 Cookie 文件，并且对其进行一些更新，但那个独一无二的编号是不会变的。如果在一定时间内，服务器发现 2 个来访者对应的是一个编号，那么自然可以认为它来源于同一个来访者，于是就计算 1 个 UV。使用 Cookie 也存在一些问题，比如：有的客户端为保证更高级别的安全，关闭了 Cookie 的功能；或者是有些客户端设置了在退出页面时自动删除 Cookie，抑或你经常自己去手动删除 Cookie，那么这个方法就不那么精确了。</li>
+</ul>
+<p><strong>工作中用到的统计工具软件</strong></p>
+<ul>
+<li>网页信息统计软件-piwik<ul>
+<li>pwiki 统计工具：<a href="https://matomo.org/">https://matomo.org/</a></li>
+<li>pwiki 演示页面：<a href="https://piwik.org/demo">https://piwik.org/demo</a></li>
 </ul>
 </li>
-</ol>
+<li>ELK 软件的使用：参考博文 <a href="http://blog.oldboyedu.com/elk/">http://blog.oldboyedu.com/elk/</a></li>
+</ul>
+<p><strong>并发</strong></p>
+<p>并发，即网站服务器在单位时间内能够处理的最大连接数。</p>
+<p>QPS (Query Per Second，每秒查询率) ：每秒查询率 QPS 是用于衡量一个特定的查询服务器在规定时间内所处理流量多少的标准。运维工作中，DNS 系统及数据库等服务的查询性能经常用每秒查询率来衡量。</p>
+<p>IOPS (Input/Output Operations Per Sercond) ：IOPS 即每秒进行读写 (I/O) 操作的次数，多用于数据库等场合，衡量随机访问的性能。存储端的 IOPS 性能和主机端的 I/O 是不同的，IOPS 是指存储每秒可接受多少次主机发出的访问，主机的一次 I/O 需要多次访问存储才可以完成。</p>
+<h3 id="七-网站服务初识"><a href="#七-网站服务初识" class="headerlink" title="七. 网站服务初识"></a>七. 网站服务初识</h3><p><strong>当前互联网主流 Web 服务软件</strong></p>
+<ul>
+<li>常用来提供静态 Web 服务的软件有如下三种：<ul>
+<li>Apache：这是中小型 Web 服务的主流，Web 服务器中的老大哥。</li>
+<li>Nginx：大型网站 Web 服务的主流，曾经 Web 服务器中的初生牛犊，现已长大。Nginx 的分支 Tengine (<a href="http://tengine.taobao.org/">http://tengine.taobao.org/</a>) 目前也在飞速发展。</li>
+<li>Lighttpd：这是一个不温不火的优秀 Web 软件，社区不活跃，静态解析效率很高。在 Nginx 流行前，它是大并发静态业务的首选，国内百度贴吧、豆瓣等众多网站都有 Lighttpd 奋斗的身影。</li>
+</ul>
+</li>
+<li>常用来提供动态服务的软件：<ul>
+<li>PHP (FastCGI) ：大中小型网站都会使用，动态网页语言 PHP 程序的解析容器。</li>
+<li>Tomcat：中小企业动态 Web 服务主流，互联网 Java 容器主流 (如 jsp、do) 。</li>
+<li>Resin：大型动态 Web 服务主流，互联网 Java 容器主流 (如 jsp、do) 。</li>
+<li>IIS (Internet information services) ：微软 windows 下的 Web 服务软件 (如 asp、aspx) 。</li>
+</ul>
+</li>
+</ul>
 ]]></content>
       <categories>
-        <category>Linux</category>
+        <category>网络</category>
       </categories>
   </entry>
 </search>
