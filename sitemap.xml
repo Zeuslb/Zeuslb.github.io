@@ -2,14 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://zeuslb.github.io/index.html/2020/12/14/NFS%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2/</loc>
+    <loc>https://zeuslb.github.io/index.html/2020/12/17/nginx%20%E9%83%A8%E7%BD%B2%E4%B8%8E%E5%AE%9E%E8%B7%B5(%E4%BA%8C)/</loc>
     
-    <lastmod>2020-12-16</lastmod>
+    <lastmod>2020-12-18</lastmod>
     
   </url>
   
   <url>
-    <loc>https://zeuslb.github.io/index.html/2020/12/16/Nginx%20%E9%83%A8%E7%BD%B2%E4%B8%8E%E4%BD%BF%E7%94%A8(%E4%B8%80)/</loc>
+    <loc>https://zeuslb.github.io/index.html/2020/12/16/nginx%20%E9%83%A8%E7%BD%B2%E4%B8%8E%E5%AE%9E%E8%B7%B5(%E4%B8%80)/</loc>
+    
+    <lastmod>2020-12-18</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://zeuslb.github.io/index.html/2020/12/14/NFS%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2/</loc>
     
     <lastmod>2020-12-16</lastmod>
     
@@ -67,7 +74,7 @@
 
   <url>
     <loc>https://zeuslb.github.io/index.html</loc>
-    <lastmod>2020-12-16</lastmod>
+    <lastmod>2020-12-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -77,14 +84,14 @@
   
   <url>
     <loc>https://zeuslb.github.io/index.html/categories/%E7%BD%91%E7%BB%9C/</loc>
-    <lastmod>2020-12-16</lastmod>
+    <lastmod>2020-12-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://zeuslb.github.io/index.html/categories/Linux/</loc>
-    <lastmod>2020-12-16</lastmod>
+    <lastmod>2020-12-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
