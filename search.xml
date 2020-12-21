@@ -959,4 +959,348 @@
         <category>Linux</category>
       </categories>
   </entry>
+  <entry>
+    <title>nginx 部署与实践(二)</title>
+    <url>/2020/12/17/nginx%20%E9%83%A8%E7%BD%B2%E4%B8%8E%E5%AE%9E%E8%B7%B5(%E4%B8%89)/</url>
+    <content><![CDATA[<h3 id="三-实践01：一个-nginx-服务器上部署多个网站"><a href="#三-实践01：一个-nginx-服务器上部署多个网站" class="headerlink" title="三. 实践01：一个 nginx 服务器上部署多个网站"></a>三. 实践01：一个 nginx 服务器上部署多个网站</h3><p><strong>基本环境</strong></p>
+<p>CentOS 7.6.1810，服务器 ip 为 10.0.0.7 。</p>
+<p>Windows10，VMnet8 ip 为 10.0.0.1 。</p>
+<p>nginx/1.18.0</p>
+<p><strong>需求</strong></p>
+<p>部署两个网站，分别为：</p>
+<table>
+<thead>
+<tr>
+<th>端口</th>
+<th>域名</th>
+<th>网站目录</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>80</td>
+<td><a href="http://www.linus.cc/">www.linus.cc</a></td>
+<td>/html/linus</td>
+</tr>
+<tr>
+<td>80</td>
+<td><a href="http://www.zeus.cc/">www.zeus.cc</a></td>
+<td>/html/zeus</td>
+</tr>
+</tbody></table>
+<p><strong>实践</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 1. 创建相应的网站目录</span><br><span class="line">[root@web01 ~]# mkdir -p &#x2F;html&#x2F;&#123;linus,zeus&#125;</span><br><span class="line"></span><br><span class="line"># 2. 上传对应的网站代码(此处仅模拟创建文件)</span><br><span class="line">[root@web01 ~]# echo &quot;this is linus&#39;s website&quot; &gt; &#x2F;html&#x2F;linus&#x2F;index.html</span><br><span class="line">[root@web01 ~]# echo &quot;this is zeus&#39;s website&quot; &gt; &#x2F;html&#x2F;zeus&#x2F;index.html</span><br><span class="line"></span><br><span class="line"># 3. 配置扩展配置文件</span><br><span class="line">[root@web01 ~]# mv &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;default.conf &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;default.conf.bak # 该文件仅作为模板使用，不需要加载</span><br><span class="line">[root@web01 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;linus.conf</span><br><span class="line">server &#123;</span><br><span class="line">    listen       80; # 配置端口</span><br><span class="line">    server_name  www.linus.cc; # 配置域名</span><br><span class="line">    location &#x2F; &#123;</span><br><span class="line">        root   &#x2F;html&#x2F;linus; # 配置站点目录</span><br><span class="line">        index  index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">[root@web01 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;zeus.conf</span><br><span class="line">server &#123;</span><br><span class="line">    listen       80;</span><br><span class="line">    server_name  www.zeus.cc;</span><br><span class="line">    location &#x2F; &#123;</span><br><span class="line">        root   &#x2F;html&#x2F;zeus;</span><br><span class="line">        index  index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 4. 查看主配置文件是否引用了刚才编写的两个扩展配置文件</span><br><span class="line">[root@web01 ~]# cat &#x2F;etc&#x2F;nginx&#x2F;nginx.conf </span><br><span class="line"># 有 include &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;*.conf; 信息，确认包括了扩展配置文件</span><br><span class="line"></span><br><span class="line"># 5. 配置 windows 的 hosts 文件做本地 ip 与域名的映射，默认路径为C:\Windows\System32\drivers\etc\hosts</span><br><span class="line">10.0.0.7 www.linus.cc www.zeus.cc</span><br><span class="line"></span><br><span class="line"># 6. 启动 nginx 服务</span><br><span class="line">[root@web01 ~]# nginx -t</span><br><span class="line">nginx: the configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf syntax is ok</span><br><span class="line">nginx: configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf test is successful</span><br><span class="line">[root@web01 ~]# systemctl start nginx</span><br><span class="line"></span><br><span class="line"># 7. 打开浏览器输入网址验证</span><br><span class="line">www.linus.cc</span><br><span class="line">www.zeus.cc</span><br></pre></td></tr></table></figure>
+
+<h3 id="四-实践02：对部署的多个网站配置不同的日志文件，且做日志切割"><a href="#四-实践02：对部署的多个网站配置不同的日志文件，且做日志切割" class="headerlink" title="四. 实践02：对部署的多个网站配置不同的日志文件，且做日志切割"></a>四. 实践02：对部署的多个网站配置不同的日志文件，且做日志切割</h3><p><strong>基本环境</strong></p>
+<p>在实践一的基础上进行实践。</p>
+<p><strong>需求</strong></p>
+<table>
+<thead>
+<tr>
+<th>网站</th>
+<th>错误日志</th>
+<th>运行日志</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="http://www.linus.cc/">www.linus.cc</a></td>
+<td>/var/log/</td>
+<td></td>
+</tr>
+<tr>
+<td><a href="http://www.zeus.cc/">www.zeus.cc</a></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p><strong>实践</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 1. 注释或删除主配置文件设置</span><br><span class="line">[root@web01 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;nginx.conf </span><br><span class="line">#error_log  &#x2F;var&#x2F;log&#x2F;nginx&#x2F;error.log warn;</span><br><span class="line">#access_log  &#x2F;var&#x2F;log&#x2F;nginx&#x2F;access.log  main;</span><br><span class="line"></span><br><span class="line"># 2. 修改对应站点的配置文件(提示：error_log 和 access_log 均可以放在 server 中)</span><br><span class="line">[root@web01 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;linus.conf </span><br><span class="line">error_log  &#x2F;var&#x2F;log&#x2F;nginx&#x2F;linus_error.log warn;</span><br><span class="line">access_log  &#x2F;var&#x2F;log&#x2F;nginx&#x2F;linus_access.log  main;</span><br><span class="line">[root@web01 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;zeus.conf </span><br><span class="line">error_log  &#x2F;var&#x2F;log&#x2F;nginx&#x2F;zeus_error.log warn;</span><br><span class="line">access_log  &#x2F;var&#x2F;log&#x2F;nginx&#x2F;zeus_access.log  main;</span><br><span class="line"></span><br><span class="line"># 3. 修改 nginx 默认的日志切割配置文件</span><br><span class="line">[root@web01 ~]# vim &#x2F;etc&#x2F;logrotate.d&#x2F;nginx</span><br><span class="line"># 添加 dateext 使其切割后以日期结尾</span><br><span class="line"># 查看配置文件为 &#x2F;var&#x2F;log&#x2F;nginx&#x2F;*.log &#123; .. &#125; ，即相应的日志文件默认都会进行切割</span><br><span class="line"></span><br><span class="line"># 4. 查看是否配置成功</span><br><span class="line">[root@web01 ~]# ll &#x2F;var&#x2F;log&#x2F;nginx&#x2F;</span><br><span class="line">total 16</span><br><span class="line">-rw-r----- 1 nginx adm  1851 Dec 18 17:12 access.log</span><br><span class="line">-rw-r----- 1 nginx adm  1049 Dec 18 17:31 error.log</span><br><span class="line">-rw-r--r-- 1 root  root  191 Dec 18 17:34 linus_access.log</span><br><span class="line">-rw-r--r-- 1 root  root    0 Dec 18 17:28 linus_error.log</span><br><span class="line">-rw-r--r-- 1 root  root  191 Dec 18 17:34 zeus_access.log</span><br><span class="line">-rw-r--r-- 1 root  root    0 Dec 18 17:28 zeus_error.log</span><br></pre></td></tr></table></figure>
+
+<h3 id="五-实践03：实现数据共享的功能"><a href="#五-实践03：实现数据共享的功能" class="headerlink" title="五. 实践03：实现数据共享的功能"></a>五. 实践03：实现数据共享的功能</h3><p><strong>基本环境</strong></p>
+<p>在实践二的基础上进行实践。</p>
+<p><strong>需求</strong></p>
+<p>将 <a href="http://www.linus.cc/">www.linus.cc</a> 网站设置为数据共享网站，所有人均可访问所有内容。</p>
+<p><strong>实践</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 1. 设置&#x2F;创建共享存储目录，此处使用网站主目录 &#x2F;html&#x2F;linus 作为共享目录</span><br><span class="line"></span><br><span class="line"># 2. 删除主目录的 index.html(配置的默认响应首页)，将共享数据上传</span><br><span class="line">[root@web01 ~]# rm -f &#x2F;html&#x2F;linus&#x2F;index.html</span><br><span class="line">[root@web01 ~]# mkdir &#x2F;html&#x2F;linus&#x2F;&#123;资料文件,图片文件,视频文件&#125; -p</span><br><span class="line">[root@web01 ~]# echo &quot;xxx&quot; &gt; &#x2F;html&#x2F;linus&#x2F;资料文件&#x2F;企业介绍.txt</span><br><span class="line"></span><br><span class="line"># 3. 修改对应站点的配置文件</span><br><span class="line">[root@web01 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;linus.conf </span><br><span class="line">autoindex on; # 在 location &#123;&#125; 中添加，表示没有默认页面时以文件列表的形式展现站点目录</span><br><span class="line">charset utf-8; # 在 server &#123;&#125; 中添加，此处为设置字符编码</span><br><span class="line">[root@web01 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;zeus.conf </span><br><span class="line">autoindex on; # 在 location &#123;&#125; 中添加</span><br><span class="line">charset utf-8; # 在 server &#123;&#125; 中添加</span><br><span class="line"></span><br><span class="line"># 4. 平滑重启 nginx 服务</span><br><span class="line">[root@web01 ~]# nginx -t</span><br><span class="line">nginx: the configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf syntax is ok</span><br><span class="line">nginx: configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf test is successful</span><br><span class="line">[root@web01 ~]# nginx -s reload</span><br><span class="line"></span><br><span class="line"># 5. 打开网址进行验证</span><br></pre></td></tr></table></figure>
+
+<h3 id="六-实践04：实现页面访问控制功能-目录访问限制"><a href="#六-实践04：实现页面访问控制功能-目录访问限制" class="headerlink" title="六. 实践04：实现页面访问控制功能(目录访问限制)"></a>六. 实践04：实现页面访问控制功能(目录访问限制)</h3><p><strong>基本环境</strong></p>
+<p>在实践三的基础上进行实践。</p>
+<p><strong>需求</strong></p>
+<p>配置某个机密目录只能 10.0.0.1 访问，其他客户端地址均不能访问。</p>
+<p><strong>实践</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 1. 创建机密目录，上传机密文件</span><br><span class="line">[root@web01 ~]# mkdir &#x2F;html&#x2F;linus&#x2F;机密文件</span><br><span class="line">[root@web01 ~]# echo linus:12345 &gt; &#x2F;html&#x2F;linus&#x2F;机密文件&#x2F;密码.txt</span><br><span class="line"></span><br><span class="line"># 2. 修改对应站点的配置文件</span><br><span class="line">[root@web01 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;linus.conf </span><br><span class="line">location &#x2F;机密文件&#x2F; &#123; # 该 location 为新建的，每个 location &#123;&#125; 都是独立的。将一些通用配置进行复制</span><br><span class="line">    root   &#x2F;html&#x2F;linus;</span><br><span class="line">    index  index.html index.htm;</span><br><span class="line">    autoindex on;</span><br><span class="line">    allow 10.0.0.1; # 仅允许 10.0.0.1 访问</span><br><span class="line">    deny all; # 除了 allow 允许的，其他的均不允许访问</span><br><span class="line">&#125;</span><br><span class="line"># 可以将 location 通用的配置放到 server &#123;&#125; 中，但不是每一项都可以放在 server 中</span><br><span class="line"></span><br><span class="line"># 3. 平滑重启 nginx 服务</span><br><span class="line">[root@web01 ~]# nginx -t</span><br><span class="line">nginx: the configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf syntax is ok</span><br><span class="line">nginx: configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf test is successful</span><br><span class="line">[root@web01 ~]# nginx -s reload</span><br><span class="line"></span><br><span class="line"># 4. 更改 VMnet8 的 ip 为 10.0.0.1 或 10.0.0.2 并打开网址进行验证</span><br></pre></td></tr></table></figure>
+
+<h3 id="七-实践05：实现页面访问控制功能-文件类型限制"><a href="#七-实践05：实现页面访问控制功能-文件类型限制" class="headerlink" title="七. 实践05：实现页面访问控制功能(文件类型限制)"></a>七. 实践05：实现页面访问控制功能(文件类型限制)</h3><p><strong>基本环境</strong></p>
+<p>在实践三的基础上进行实践。</p>
+<p><strong>需求</strong></p>
+<p>配置客户端访问站点时，均不能访问 .txt 文件。</p>
+<p><strong>实践</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 1. 创建非 .txt 结尾的文件用于测试</span><br><span class="line">echo &quot;this is a css document.&quot; &gt; &#x2F;html&#x2F;linus&#x2F;资料文件&#x2F;xxx.css</span><br><span class="line">echo &quot;this is a doc document.&quot; &gt; &#x2F;html&#x2F;linus&#x2F;资料文件&#x2F;xxx.doc</span><br><span class="line"></span><br><span class="line"># 2. 修改对应站点的配置文件</span><br><span class="line">[root@web01 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;linus.conf </span><br><span class="line">location ~ \.(txt|doc)$ &#123; # 该 location 为新建的，此处 ~ 代表区分大小写匹配</span><br><span class="line">    root   &#x2F;html&#x2F;linus;</span><br><span class="line">    index  index.html index.htm;</span><br><span class="line">    autoindex on;</span><br><span class="line">    deny all;</span><br><span class="line">&#125;  </span><br><span class="line"></span><br><span class="line"># 3. 平滑重启 nginx 服务</span><br><span class="line">[root@web01 ~]# nginx -t</span><br><span class="line">nginx: the configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf syntax is ok</span><br><span class="line">nginx: configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf test is successful</span><br><span class="line">[root@web01 ~]# nginx -s reload</span><br><span class="line"></span><br><span class="line"># 4. 打开网址进行验证</span><br></pre></td></tr></table></figure>
+
+<h3 id="八-实践06：实现页面访问控制功能-用户认证功能"><a href="#八-实践06：实现页面访问控制功能-用户认证功能" class="headerlink" title="八. 实践06：实现页面访问控制功能(用户认证功能)"></a>八. 实践06：实现页面访问控制功能(用户认证功能)</h3><p><strong>基本环境</strong></p>
+<p>在实践三的基础上进行实践。</p>
+<p><strong>需求</strong></p>
+<p>用户访问站点时需要进行密码认证。</p>
+<p><strong>实践</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 1. 下载工具包</span><br><span class="line">[root@web01 ~]# yum install -y httpd-tools</span><br><span class="line"></span><br><span class="line"># 2. 生成密码文件，添加用户</span><br><span class="line">[root@web01 ~]# htpasswd -cb &#x2F;etc&#x2F;nginx&#x2F;passwd.txt linus 12345</span><br><span class="line">Adding password for user linus</span><br><span class="line">[root@web01 ~]# htpasswd -b &#x2F;etc&#x2F;nginx&#x2F;passwd.txt zeus 12345</span><br><span class="line">Adding password for user zeus</span><br><span class="line"># -b 参数表示创建文件，使用免交互的方式添加用户</span><br><span class="line"># -B 参数表示删除用户</span><br><span class="line"># -c 参数表示创建新的密码文件，在添加时注意不要加此参数</span><br><span class="line"></span><br><span class="line"># 3. 修改对应站点的配置文件</span><br><span class="line">[root@web01 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;linus.conf </span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">    root   &#x2F;html&#x2F;linus;</span><br><span class="line">    index  index.html index.htm;</span><br><span class="line">    autoindex on;</span><br><span class="line">    auth_basic &quot;访问认证&quot;;</span><br><span class="line">    auth_basic_user_file &#x2F;etc&#x2F;nginx&#x2F;passwd.txt;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 4. 平滑重启 nginx 服务</span><br><span class="line">[root@web01 ~]# nginx -t</span><br><span class="line">nginx: the configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf syntax is ok</span><br><span class="line">nginx: configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf test is successful</span><br><span class="line">[root@web01 ~]# nginx -s reload</span><br><span class="line"></span><br><span class="line"># 5. 打开网址进行验证</span><br></pre></td></tr></table></figure>
+
+<h3 id="九-实践07：开启-nginx-服务状态监测功能"><a href="#九-实践07：开启-nginx-服务状态监测功能" class="headerlink" title="九. 实践07：开启 nginx 服务状态监测功能"></a>九. 实践07：开启 nginx 服务状态监测功能</h3><p><strong>基本环境</strong></p>
+<p>在实践三的基础上进行实践。</p>
+<p><strong>需求</strong></p>
+<p>开启 nginx 服务状态监测功能。</p>
+<p><strong>实践</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 1. 修改对应站点的配置文件</span><br><span class="line">[root@web01 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;linus.conf </span><br><span class="line">location &#x2F;basic_status &#123;</span><br><span class="line">	stub_status; # 开启 nginx 服务状态监测功能</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 2. 平滑重启 nginx 服务</span><br><span class="line">[root@web01 ~]# nginx -t</span><br><span class="line">nginx: the configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf syntax is ok</span><br><span class="line">nginx: configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf test is successful</span><br><span class="line">[root@web01 ~]# nginx -s reload</span><br><span class="line"></span><br><span class="line"># 3. 打开网址 http:&#x2F;&#x2F;www.linus.cc&#x2F;basic_status 进行验证</span><br><span class="line">Active connections: 2 </span><br><span class="line">server accepts handled requests</span><br><span class="line"> 28 28 89 </span><br><span class="line">Reading: 0 Writing: 1 Waiting: 1</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/2020/12/21/rsync%20%E9%83%A8%E7%BD%B2%E4%B8%8E%E5%AE%9E%E8%B7%B5/</url>
+    <content><![CDATA[<h3 id="一-备份服务"><a href="#一-备份服务" class="headerlink" title="一. 备份服务"></a>一. 备份服务</h3><p><strong>介绍</strong></p>
+<p>主要用于备份服务器中重要的数据，例如系统配置文件、服务配置文件、服务日志文件(数据采集) …</p>
+<p><strong>作用</strong></p>
+<p>早期使用本地备份，目的是作为数据对比文件。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">cp /etc/hosts&#123;,.bak&#125; <span class="comment"># 编辑前进行本地备份处理</span></span><br><span class="line">diff /etc/hosts /etc/hosts.bak <span class="comment"># 不带颜色的文件对比(只显示不一样的部分)</span></span><br><span class="line">vimdiff /etc/hosts /etc/hosts.bak <span class="comment"># 带颜色的文件对比(全文显示)</span></span><br></pre></td></tr></table></figure>
+
+<p>远程备份主要用于数据还原。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">scp /etc/hosts 172.16.1.41:/backup <span class="comment"># 使用 ssh 远程备份文件(推送数据)</span></span><br><span class="line"><span class="comment"># 问题：无法实现文件的属性时间(总是备份时的时间)</span></span><br><span class="line">scp -p /etc/hosts 172.16.1.41:/backup <span class="comment"># 使用 ssh 远程备份文件，且保持文件属性</span></span><br><span class="line"><span class="comment"># 问题：无法实现备份目录</span></span><br><span class="line">scp -pr /etc 172.16.1.41:/backup <span class="comment"># 使用 ssh 远程备份目录</span></span><br><span class="line"><span class="comment"># 问题：如何实现恢复</span></span><br><span class="line">scp -p 172.16.1.41:/backup /etc/hosts <span class="comment"># 使用 ssh 远程恢复文件(拉取数据)</span></span><br><span class="line"><span class="comment"># 问题：使用 scp 时的痛点</span></span><br><span class="line"><span class="comment"># 1. 每次备份数据均需要输入密码 → 无法实现自动化</span></span><br><span class="line"><span class="comment"># 2. 备份数据时无法进行传输限制</span></span><br><span class="line"><span class="comment"># 3. 备份数据时不同用户需要进行权限调整</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="二-备份服务工作原理"><a href="#二-备份服务工作原理" class="headerlink" title="二. 备份服务工作原理"></a>二. 备份服务工作原理</h3><p><strong>数据传输备份原理 (rsync)</strong></p>
+<p>图示</p>
+<p><img src="https://zeuslb.github.io/img/rsync%E5%A4%87%E4%BB%BD%E5%8E%9F%E7%90%86%E5%9B%BE.png" alt="rsync备份原理图"></p>
+<p>过程见下：</p>
+<ul>
+<li>通过TCP三次握手建立网络连接</li>
+<li>进行身份验证。客户端发送用户密码信息，服务端对比用户文件验证合法性</li>
+<li>数据传输后需要进行属主和属组的变化。客户端文件属性信息统一变为服务端指定的用户信息</li>
+</ul>
+<p><strong>数据增量备份原理 (rsync)</strong></p>
+<p>原理：在数据远程传输之前需要进行数据比对</p>
+<p>比对方式有以下两种：</p>
+<ul>
+<li><p>根据文件SHA/MD5算法进行比对(根据文件名称以及文件内容识别文件之间的区别)</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">md5sum /etc/hosts</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>根据文件属性信息进行比对(根据权限、时间、大小信息等进行区别)</p>
+</li>
+</ul>
+<p><strong>备份服务的方式</strong></p>
+<ul>
+<li><p>定时备份数据：编写好备份数据的脚本文件，将其放入到定时任务中即可</p>
+</li>
+<li><p>实时备份数据：先对目录数据变化进行监控，然后利用rsync将变化的数据进行备份</p>
+</li>
+</ul>
+<h3 id="三-rsync-部署安装"><a href="#三-rsync-部署安装" class="headerlink" title="三. rsync 部署安装"></a>三. rsync 部署安装</h3><p><strong>服务端部署：</strong></p>
+<ol>
+<li><p>在备份服务器上安装rsync</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">yum install -y rsync</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建管理备份目录以及数据的用户信息</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">useradd rsync -M -s /sbin/nologin</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建备份目录</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">mkdir /backup</span><br><span class="line">   chown rsync. /backup</span><br><span class="line">   ll /backup -d</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建用户列表文件</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;rsync_backup:linus&#x27;</span> &gt; /etc/rsync.password</span><br><span class="line">chmod 600 /etc/rsync.password</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编辑配置文件</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">vim /etc/rsyncd.conf</span><br><span class="line"></span><br><span class="line">uid = rsync</span><br><span class="line">gid = rsync</span><br><span class="line">port = 873</span><br><span class="line">fake super = yes</span><br><span class="line">use chroot = no</span><br><span class="line">max connections = 200</span><br><span class="line">timeout = 300</span><br><span class="line">pid file = /var/run/rsyncd.pid</span><br><span class="line">lock file = /var/run/rsync.lock</span><br><span class="line"><span class="built_in">log</span> file = /var/<span class="built_in">log</span>/rsyncd.log</span><br><span class="line">ignore errors</span><br><span class="line"><span class="built_in">read</span> only = <span class="literal">false</span></span><br><span class="line">list = <span class="literal">false</span></span><br><span class="line">hosts allow = 172.16.1.0/24</span><br><span class="line">hosts deny = 0.0.0.0/32</span><br><span class="line">auth users = rsync_backup</span><br><span class="line">secrets file = /etc/rsync.password</span><br><span class="line">[backup]</span><br><span class="line">comment = <span class="string">&quot;backup dir by oldboy&quot;</span></span><br><span class="line">path = /backup</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动服务</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">systemctl start rsyncd</span><br><span class="line">ps -ef | grep <span class="string">&quot;rsync&quot;</span></span><br><span class="line">netstat -lntup | grep 873 <span class="comment"># 查看系统网络服务状态，可以用于查看某个服务是否开启了(该命令属于net-tools程序)，参数记忆为 -untpl</span></span><br><span class="line"><span class="comment"># -l 显示网络监听信息</span></span><br><span class="line"><span class="comment"># -n 端口信息以数字方式显示</span></span><br><span class="line"><span class="comment"># -t 显示TCP协议的信息</span></span><br><span class="line"><span class="comment"># -u 显示UDP协议的信息</span></span><br><span class="line"><span class="comment"># -p 显示服务对应的进程信息(PID/Program name)</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p><strong>客户端部署：</strong></p>
+<ul>
+<li><p>交互式实现数据传输</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">rsync -avz /etc/hosts rsync_backup@172.16.1.41::backup <span class="comment"># rsync -avz 备份文件 用户名@备份服务器ip::模块名</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>免交互实现数据传输</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 方式一：使用文件的方式(在客户端操作)</span></span><br><span class="line"><span class="built_in">echo</span> linus &gt; /etc/rsync.password <span class="comment"># 在客户端创建密码文件</span></span><br><span class="line">chmod 600 /etc/rsync.password <span class="comment"># 更改权限</span></span><br><span class="line">rsync -avz /etc/hosts rsync_backup@172.16.1.41::backup --password-file=/etc/rsync.password</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式二：使用环境变量的方式(在客户端操作)</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;export RSYNC_PASSWORD=linus&#x27;</span> &gt;&gt; /etc/profile <span class="comment"># export 指令的作用是将一个普通变量变为环境变量</span></span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br><span class="line">rsync -avz /etc/hosts rsync_backup@172.16.1.41::backup</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拓展： env 命令：输出所有的环境变量</span></span><br><span class="line">env | grep RSYNC_PASSWORD</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><strong>rsync 方式与 scp 方式在进行文件传输时的区别</strong></p>
+<ul>
+<li>可以实现增量复制目录下面的数据</li>
+<li>复制目录时，目录后面有无斜线是有区别的<ul>
+<li>scp ：无论有无斜线均复制目录；有星号时复制目录下内容</li>
+<li>rsync：无斜线时复制目录；有斜线时复制目录下内容</li>
+</ul>
+</li>
+</ul>
+<h3 id="四-rsync-配置文件"><a href="#四-rsync-配置文件" class="headerlink" title="四. rsync 配置文件"></a>四. rsync 配置文件</h3><p><strong>路径</strong></p>
+<p><code>/etc/rsyncd.conf</code></p>
+<p><strong>配置说明</strong></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">uid = rsync <span class="comment"># 指定rsync服务备份目录或者数据信息管理的用户信息</span></span><br><span class="line">gid = rsync <span class="comment"># 指定rsync服务备份目录或者数据信息管理的用户组信息</span></span><br><span class="line">port = 873 <span class="comment"># 指定服务端口号，如果修改后客户端在使用时需要加参数 --port=xxx</span></span><br><span class="line">fake super = yes <span class="comment"># uid指令指定的用户可以伪装为管理员用户</span></span><br><span class="line">use chroot = no <span class="comment"># 提高数据备份安全性(前提：需要将备份目录权限与uid信息设置为root用户)</span></span><br><span class="line">max connections = 200 <span class="comment"># 设置最大连接数(客户端连接数量)→ 保证已有连接的传输效率</span></span><br><span class="line">timeout = 300 <span class="comment"># 设置闲置连接的会话超时时间(单位是秒)</span></span><br><span class="line">pid file = /var/run/rsyncd.pid <span class="comment"># 记录服务程序的pid文件(自动生成和删除，可以用来判断服务是否启动)，用于记录进程号码</span></span><br><span class="line">lock file = /var/run/rsync.lock <span class="comment"># 记录服务程序的锁文件</span></span><br><span class="line"><span class="built_in">log</span> file = /var/<span class="built_in">log</span>/rsyncd.log <span class="comment"># 日志文件</span></span><br><span class="line">ignore errors <span class="comment"># 忽略错误(尽量忽略简单的异常错误，提高传输的可靠性)</span></span><br><span class="line"><span class="built_in">read</span> only = <span class="literal">false</span> <span class="comment"># 指定备份数据的目录是否是只读的</span></span><br><span class="line">list = <span class="literal">false</span> <span class="comment"># 列表显示备份服务模块信息</span></span><br><span class="line">hosts allow = 172.16.1.0/24 <span class="comment"># 白名单(允许客户端主机地址进行访问)</span></span><br><span class="line">hosts deny = 0.0.0.0/32 <span class="comment"># 黑名单(拒绝客户端主机地址的访问)</span></span><br><span class="line">auth users = rsync_backup <span class="comment"># 指定可以进行认证的用户(该用户不需要在系统中存在，仅在服务中做认证使用)</span></span><br><span class="line">secrets file = /etc/rsync.password <span class="comment"># 用户密码文件(格式为：username:password，权限必须是600，属主和属组为root)</span></span><br><span class="line">[backup] <span class="comment"># 模块信息，下面的内容为局部配置信息</span></span><br><span class="line">comment = <span class="string">&quot;backup dir by oldboy&quot;</span> <span class="comment"># 模块注释说明</span></span><br><span class="line">path = /backup <span class="comment"># 指定模块对应的备份目录(建议模块名和备份路径名保持一致)</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="五-rsync-常见命令"><a href="#五-rsync-常见命令" class="headerlink" title="五. rsync 常见命令"></a>五. rsync 常见命令</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 语法格式一：rsync 可以实现数据本地备份，与 cp 一致</span></span><br><span class="line">rsync /etc/hosts /backup/</span><br><span class="line"><span class="meta">#</span><span class="bash"> 语法格式二：rsync 可以实现数据远程备份，与 scp 一致</span></span><br><span class="line">rsync -avz /etc/hosts root@172.16.1.41:/tmp # 将本地数据推送到远程主机上</span><br><span class="line">rsync -avz root@172.16.1.41:/tmp/hosts /etc # 将远程数据拉取到本地主机上</span><br><span class="line"><span class="meta">#</span><span class="bash"> 语法格式三：基于守护进程的方式实现数据传输</span></span><br><span class="line">rsync -avz /etc/hosts rsync_backup@172.16.1.41::backup # 本地 → 远程</span><br><span class="line">rsync -avz /etc/hosts rsync://rsync_backup@172.16.1.41:888/backup # 本地 → 远程</span><br><span class="line">rsync -avz rsync_backup@172.16.1.41::backup/hosts /etc/ # 本地 → 远程</span><br><span class="line"><span class="meta">#</span><span class="bash"> 常用参数</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -v → 显示传输的过程(定时任务中可以不需要该参数)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -z → 在传输时对文件做压缩处理</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -a → 等价于执行了 -rlptgoD</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -r → 可以递归传输数据(传输目录)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -l → 可以复制软链接文件(仅复制快捷方式，无意义)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -L → 可以复制软链接指向的源文件</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -p → 维持属性中的权限不改变</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -t → 维持属性中的修改时间不改变</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -o → 维持属性中的属主不改变(仅对管理员用户生效，即配置文件中的uid和gid均需要调整为root，且fake super需要注释)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -g → 维持属性中的属组不改变</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -D → 传输设备文件时可以保持设备文件属性保持不变</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> -P → 显示传输进度</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="六-rsync-的多模块配置"><a href="#六-rsync-的多模块配置" class="headerlink" title="六. rsync 的多模块配置"></a>六. rsync 的多模块配置</h3><p><strong>作用</strong></p>
+<p>可以实现数据的分类存储</p>
+<p><strong>配置方法</strong></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 服务端配置</span></span><br><span class="line"><span class="comment"># 1. 编写配置文件</span></span><br><span class="line">[oldgirl_backup]</span><br><span class="line">comment = <span class="string">&quot;backup dir by oldgirl&quot;</span></span><br><span class="line">path = /oldgirl_backup</span><br><span class="line">auth users = oldgirl_bak</span><br><span class="line">[oldboy_backup]</span><br><span class="line">comment = <span class="string">&quot;backup dir by oldboy&quot;</span></span><br><span class="line">path = /oldboy_backup</span><br><span class="line">auth users = oldboy_bak</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 创建备份目录</span></span><br><span class="line">mkdir /oldgirl_backup</span><br><span class="line">chown rsync. /oldgirl_backup</span><br><span class="line">mkdir /oldboy_backup</span><br><span class="line">chown rsync. /oldboy_backup</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 设置用户列表文件</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;oldgirl_bak:oldgirl\noldboy_bak:oldboy&quot;</span> &gt;&gt; /etc/rsync.password</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 重启服务</span></span><br><span class="line">systemctl restart rsyncd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端配置</span></span><br><span class="line"><span class="comment"># 1. 配置密码文件</span></span><br><span class="line"><span class="built_in">echo</span> oldgirl &gt; /etc/oldgirl_bak_rsync_password</span><br><span class="line">chmod 600 /etc/oldgirl_bak_rsync_password</span><br><span class="line"><span class="built_in">echo</span> oldboy &gt; /etc/oldboy_bak_rsync_password</span><br><span class="line">chmod 600 /etc/oldboy_bak_rsync_password</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试</span></span><br><span class="line">rsync -avz /etc/hosts oldboy_bak@172.16.1.41::oldboy_backup --password-file=/etc/oldboy_bak_rsync_password</span><br><span class="line">rsync -avz /etc/hosts oldgirl_bak@172.16.1.41::oldgirl_backup --password-file=/etc/oldgirl_bak_rsync_password</span><br><span class="line"></span><br><span class="line"><span class="comment"># 补充说明：单个模块实现多个目录分类管理</span></span><br><span class="line">rsync -avz /etc/hosts oldboy_bak@172.16.1.41::oldboy_backup/network <span class="comment"># 直接加上/network即可，不存在会自动创建</span></span><br><span class="line"><span class="comment"># 注意：只能创建单级目录，不能创建多级目录</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="七-rsync-的数据排除功能"><a href="#七-rsync-的数据排除功能" class="headerlink" title="七. rsync 的数据排除功能"></a>七. rsync 的数据排除功能</h3><p><strong>作用</strong></p>
+<p>在备份目录时，需要将目录中的某些数据排除掉</p>
+<p><strong>配置方法</strong></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 环境准备</span></span><br><span class="line"><span class="built_in">cd</span> data</span><br><span class="line">mkdir &#123;a..c&#125;_dir</span><br><span class="line">touch &#123;a..c&#125;_dir/file&#123;01..03&#125;.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 需求：a_dir中的file01.txt不要备份</span></span><br><span class="line"><span class="comment"># 需要用到 --exclude 参数，排除多个的时候可以使用多次，注意需要使用相对路径</span></span><br><span class="line">rsync -avz /data/ oldgirl_bak@172.16.1.41::oldgirl_backup --exclude a_dir/file01.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 需求：a_file整个目录排除；b_dir中的file02.txt不要备份</span></span><br><span class="line"><span class="comment"># 需要用到 --exclude-from=xxx，文件里面使用相对路径</span></span><br><span class="line">touch /tmp/rsync_exclude.txt</span><br><span class="line">vim /tmp/rsync_exclude.txt</span><br><span class="line">rsync -avz /data/ oldgirl_bak@172.16.1.41::oldgirl_backup --exclude-from /tmp/rsync_exclude.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="八-rsync-的安全访问控制"><a href="#八-rsync-的安全访问控制" class="headerlink" title="八. rsync 的安全访问控制"></a>八. rsync 的安全访问控制</h3><p><strong>作用</strong></p>
+<p>显示可以与备份服务器进行网络通讯的主机</p>
+<p><strong>配置方法</strong></p>
+<p>设置白名单和黑名单</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 需求一：只允许172.16.1.31主机进行数据备份</span></span><br><span class="line"><span class="comment"># 方法：只配置白名单，黑名单注释使其失效</span></span><br><span class="line">hosts allow = 172.16.1.31</span><br><span class="line"></span><br><span class="line"><span class="comment"># 需求二：仅172.16.1.31主机禁止数据备份</span></span><br><span class="line"><span class="comment"># 方法：只配置黑名单，白名单注释使其失效</span></span><br><span class="line">hosts deny = 172.16.1.31</span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问控制策略：</span></span><br><span class="line"><span class="comment"># 1. 只有白名单，匹配白名单的放行，不匹配的阻止</span></span><br><span class="line"><span class="comment"># 2. 只有黑名单，匹配黑名单的阻止，不匹配的放行</span></span><br><span class="line"><span class="comment"># 3. 既有黑名单也有白名单，先匹配白名单，匹配的放行，不匹配的看黑名单。黑名单匹配的阻止，不匹配的放行</span></span><br><span class="line"><span class="comment"># 4. 既在黑名单又在白名单上，白名单优先</span></span><br></pre></td></tr></table></figure>
+
+<p>访问控制策略图示</p>
+<p><img src="https://zeuslb.github.io/img/rsync%E8%AE%BF%E9%97%AE%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E7%AD%96%E7%95%A5.png" alt="rsync访问黑白名单策略"></p>
+<h3 id="九-rsync-的无差异同步"><a href="#九-rsync-的无差异同步" class="headerlink" title="九. rsync 的无差异同步"></a>九. rsync 的无差异同步</h3><p><strong>作用</strong></p>
+<p>保证客户端数据与备份服务端的数据一致</p>
+<p><strong>配置方法</strong></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">rsync -avz /data/ oldgirl_bak@172.16.1.41::oldgirl_backup --delete</span><br></pre></td></tr></table></figure>
+
+<p><strong>企业应用</strong></p>
+<p>保证线上服务端和线下服务端的数据一致性。慎用<code>--delete</code>，如果目录不正确，则会将备份服务器或者客户端的所有内容删除。</p>
+<h3 id="十-rsync-的传输限速功能"><a href="#十-rsync-的传输限速功能" class="headerlink" title="十. rsync 的传输限速功能"></a>十. rsync 的传输限速功能</h3><p><strong>作用</strong></p>
+<p>防止某个主机占用过多带宽导致其他服务器无法进行数据的传输</p>
+<p><strong>配置方法</strong></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">--bwlimit=100 <span class="comment"># 默认单位是kB/s</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="十一-rsync-的列表查询功能"><a href="#十一-rsync-的列表查询功能" class="headerlink" title="十一. rsync 的列表查询功能"></a>十一. rsync 的列表查询功能</h3><p><strong>配置方法</strong></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 服务端修改配置文件</span></span><br><span class="line">list = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端查看模块列表</span></span><br><span class="line">rsync 172.16.1.41:: </span><br></pre></td></tr></table></figure>
+
+<h3 id="十三-rsync-备份服务项目实战"><a href="#十三-rsync-备份服务项目实战" class="headerlink" title="十三. rsync 备份服务项目实战"></a>十三. rsync 备份服务项目实战</h3><p><strong>项目实战方案规划</strong></p>
+<ol>
+<li><p>项目前言介绍(目前的痛点)</p>
+</li>
+<li><p>项目需求说明</p>
+<blockquote>
+<ol>
+<li>所有服务器的备份目录必须都为 /backup</li>
+<li>要备份的系统配置文件包括但不限于：</li>
+</ol>
+<ul>
+<li>定时任务服务的配置文件(/var/spool/cron/root) → 适合web和nfs服务器</li>
+<li>开机自启动的配置文件(/etc/rc.local) → 适合web和nfs服务器</li>
+<li>日常脚本的目录(/server/scripts)</li>
+<li>防火墙iptables的配置文件(/etc/sysconfig/iptables)</li>
+</ul>
+<ol start="3">
+<li>Web服务器站点目录假定为/var/html/www/</li>
+<li>Web服务器访问日志路径假定为/app/logs/</li>
+<li>服务器保留打包后的7天的备份数据即可(本地留存不能多于7天，因为太多硬盘会满)</li>
+<li>备份服务器上,保留每周一的所有数据副本，其它要保留6个月的数据副本。</li>
+</ol>
+<ul>
+<li>方案一：对周一数据进行标记</li>
+<li>方式二：备份服务器可以单独将周一数据提取出来</li>
+</ul>
+<ol start="7">
+<li>备份服务器上,要按照备份数据服务器的内网IP为目录名称保存备份，备份的文件按照时间名字保存</li>
+<li>需要确保备份的数据尽量完整正确，在备份服务器上对备份的数据进行检查，把备份的成功及失败结果信息发给系统管理员邮箱中</li>
+</ol>
+</blockquote>
+</li>
+<li><p>项目实施进度</p>
+</li>
+<li><p>项目实战部署</p>
+</li>
+<li><p>拓展：<code>md5sum -c check.txt</code> 的工作原理</p>
+<ol>
+<li>读取文件信息(读取到校验值和文件名)</li>
+<li>根据文件内容查看数据信息</li>
+<li>将读取文件的校验值与源check文件的校验值做对比</li>
+</ol>
+</li>
+</ol>
+<p><strong>项目实战实施部署</strong></p>
+<ol>
+<li><p>客户端部署(nfs01、web01)</p>
+<ol>
+<li><p>免交互传输数据功能：配置环境变量</p>
+</li>
+<li><p>编写脚本完成需求</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建脚本目录和脚本文件</span></span><br><span class="line">mkdir -p /server/scripts</span><br><span class="line">touch bachup_date.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编辑 backup_date.sh 脚本</span></span><br><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># 初始化变量</span></span><br><span class="line">Eth1_ip=`ip a s eth1 | awk -F <span class="string">&quot;[ /]+&quot;</span> <span class="string">&#x27;NR==3&#123;print $3&#125;&#x27;</span>`</span><br><span class="line">Date_info=`date <span class="string">&quot;+%F_星期%w&quot;</span> -d <span class="string">&quot;-1 day&quot;</span>`</span><br><span class="line"><span class="comment"># 1. 创建本地备份目录(包括ip地址)</span></span><br><span class="line"><span class="keyword">if</span> [ ! -d /backup ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	mkdir -p /backup/<span class="variable">$Eth1_ip</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment"># 2. 打包备份数据到本地(注意软链接文件和时间问题)</span></span><br><span class="line">tar zcfh /backup/<span class="variable">$&#123;Eth1_ip&#125;</span>/system_backup_<span class="variable">$&#123;Date_info&#125;</span>.tar.gz /var/spool/cron/root /etc/rc.local /server/scripts /etc/sysconfig/iptables &amp;&gt; /dev/null</span><br><span class="line"><span class="comment"># 3. 清除七天前的历史备份数据</span></span><br><span class="line">find /backup/<span class="variable">$&#123;Eth1_ip&#125;</span>/ -<span class="built_in">type</span> f -name <span class="string">&quot;*.tar.gz&quot;</span> -mtime +7 -delete</span><br><span class="line"><span class="comment"># 4. 生成每天数据的校验文件</span></span><br><span class="line">find /backup/<span class="variable">$Eth1_ip</span>/ -mmin -10 -name <span class="string">&quot;*.tar.gz&quot;</span> | xargs md5sum &gt; /backup/<span class="variable">$Eth1_ip</span>/check.txt</span><br><span class="line"><span class="comment"># 5. 传输备份数据</span></span><br><span class="line">rsync -az /backup/<span class="variable">$Eth1_ip</span> linus@172.16.1.41::backup</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编写定时任务：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">0 0 * * * &#x2F;bin&#x2F;sh &#x2F;server&#x2F;scripts&#x2F;backup_data.sh &amp;&gt; &#x2F;dev&#x2F;null</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li><p>服务端部署(backup)</p>
+<ol>
+<li><p>部署搭建 rsync 服务</p>
+</li>
+<li><p>对备份的数据做完整性校验</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建脚本目录和脚本文件</span></span><br><span class="line">mkdir -p /server/scripts</span><br><span class="line">touch bachup_date.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编辑 backup_date.sh 脚本</span></span><br><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># 1. 校验数据完整性</span></span><br><span class="line">find /backup/ -<span class="built_in">type</span> f -name <span class="string">&quot;check.txt&quot;</span> | xargs mdssum -c &gt; /var/<span class="built_in">log</span>/backup.log</span><br><span class="line"><span class="comment"># 2. 发送邮件(校验结果信息)</span></span><br><span class="line">mail -s <span class="string">&quot;backup_check&quot;</span> 714616622@qq.com &lt; /var/<span class="built_in">log</span>/backup.log</span><br><span class="line"><span class="comment"># 3. 清理180天以前的数据</span></span><br><span class="line">find /backup/ -<span class="built_in">type</span> f -mtime +180 ! -name <span class="string">&quot;*_星期1.tar.gz&quot;</span> -delete</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">   <span class="comment"># 邮件配置</span></span><br><span class="line">   </span><br><span class="line">   <span class="comment"># 1. 编辑配置文件 /etc/maul.rc</span></span><br><span class="line"><span class="built_in">set</span> from=714616622@qq.com smtp=smtp.qq.com     <span class="comment"># 邮件发送邮件服务器域名</span></span><br><span class="line">   <span class="built_in">set</span> smtp-auth-user=714616622@qq.com smtp-auth-password=abftwbzzphewbeah smtp-auth=login</span><br><span class="line"></span><br><span class="line">   <span class="comment"># 2. 重启服务</span></span><br><span class="line">   systemctl restart postfix.service</span><br><span class="line">   </span><br><span class="line">   <span class="comment"># 3. 测试邮件功能</span></span><br><span class="line">   <span class="built_in">echo</span> <span class="string">&quot;xxx&quot;</span> | mail -s <span class="string">&quot;标题&quot;</span> lbrunnerboy@gmail.com</span><br></pre></td></tr></table></figure></li>
+<li><p>编写定时任务</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">0 8 * * * /bin/sh /server/scripts/backup_server.sh &amp;&gt; /dev/null</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+</li>
+</ol>
+<p><strong>项目实施验收检查</strong></p>
+<p><strong>项目实战(自己的代码)</strong></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 备份服务器代码：</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># 数据完整性校验</span></span><br><span class="line">find /backup -<span class="built_in">type</span> f -name <span class="string">&quot;check.pw&quot;</span> | xargs md5sum -c &gt; /var/<span class="built_in">log</span>/Integrity_check</span><br><span class="line"><span class="comment"># 邮件发送</span></span><br><span class="line">mail -s <span class="string">&quot;备份数据结果&quot;</span> 446951558@qq.com &lt; /var/<span class="built_in">log</span>/Integrity_check</span><br><span class="line"><span class="comment"># 保留每周一的所有数据副本，其他保留6个月的数据副本</span></span><br><span class="line">find /backup -<span class="built_in">type</span> f ! -name <span class="string">&quot;*Monday.tar.gz&quot;</span> -mtime +180 -name -delete</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># nfs 服务器代码：</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># 定义变量</span></span><br><span class="line"><span class="built_in">export</span> RSYNC_PASSWORD=linus(定时任务无法识别环境变量)</span><br><span class="line">date_info=$(date <span class="string">&quot;+%F_%A&quot;</span> -d <span class="string">&quot;-1 day&quot;</span>) <span class="comment"># 备份时间信息</span></span><br><span class="line">bak_dir=<span class="string">&quot;/backup/<span class="subst">$(/usr/sbin/ip a s eth1 | awk -F <span class="string">&quot;[ /]+&quot;</span> &#x27;NR==3&#123;print $3&#125;&#x27;)</span>&quot;</span> <span class="comment"># 备份目标目录(后面不加/的原因是需要在rsync备份时将目录及其子文件传输)</span></span><br><span class="line">bak_system_data=<span class="string">&quot;/var/spool/cron/root /etc/rc.local /server/scripts /etc/sysconfig/iptables&quot;</span> <span class="comment"># 备份数据列表(系统文件)</span></span><br><span class="line">bak_web_code=<span class="string">&quot;/var/html/www&quot;</span> <span class="comment"># 备份数据列表(代码文件)</span></span><br><span class="line">bak_web_log=<span class="string">&quot;/app/logs&quot;</span> <span class="comment"># 备份数据列表(日志文件)</span></span><br><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line"><span class="keyword">if</span> [ ! -d <span class="variable">$bak_dir</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    mkdir -p <span class="variable">$bak_dir</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment"># 压缩数据</span></span><br><span class="line">tar zcfh <span class="variable">$bak_dir</span>/system_data_<span class="variable">$&#123;date_info&#125;</span>.tar.gz <span class="variable">$bak_system_data</span></span><br><span class="line"><span class="comment"># 删除七天前的数据</span></span><br><span class="line">find <span class="variable">$bak_dir</span> -<span class="built_in">type</span> f -name <span class="string">&quot;*.tar.gz&quot;</span> -mtime +7 -delete</span><br><span class="line"><span class="comment"># 数据校验</span></span><br><span class="line">find <span class="variable">$bak_dir</span> -<span class="built_in">type</span> f -name <span class="string">&quot;*.tar.gz&quot;</span> -mmin -200 | xargs md5sum &gt; <span class="variable">$bak_dir</span>/check.pw</span><br><span class="line"><span class="comment"># rsync 备份</span></span><br><span class="line">rsync -az <span class="variable">$bak_dir</span> linus@172.16.1.41::backup</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># web 服务器代码：</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># 定义变量</span></span><br><span class="line"><span class="built_in">export</span> RSYNC_PASSWORD=linus</span><br><span class="line">date_info=$(date <span class="string">&quot;+%F_%A&quot;</span> -d <span class="string">&quot;-1 day&quot;</span>) <span class="comment"># 备份时间信息</span></span><br><span class="line">bak_dir=<span class="string">&quot;/backup/<span class="subst">$(/usr/sbin/ip a s eth1 | awk -F <span class="string">&quot;[ /]+&quot;</span> &#x27;NR==3&#123;print $3&#125;&#x27;)</span>&quot;</span> <span class="comment"># 备份目标目录(后面不加/的原因是需要在rsync备份时将目录及其子文件传输)</span></span><br><span class="line">bak_system_data=<span class="string">&quot;/var/spool/cron/root /etc/rc.local /server/scripts /etc/sysconfig/iptables&quot;</span> <span class="comment"># 备份数据列表(系统文件)</span></span><br><span class="line">bak_web_code=<span class="string">&quot;/var/html/www&quot;</span> <span class="comment"># 备份数据列表(代码文件)</span></span><br><span class="line">bak_web_log=<span class="string">&quot;/app/logs&quot;</span> <span class="comment"># 备份数据列表(日志文件)</span></span><br><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line"><span class="keyword">if</span> [ ! -d <span class="variable">$bak_dir</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    mkdir -p <span class="variable">$bak_dir</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment"># 压缩数据</span></span><br><span class="line">tar zcfh <span class="variable">$bak_dir</span>/system_data_<span class="variable">$&#123;date_info&#125;</span>.tar.gz <span class="variable">$bak_system_data</span></span><br><span class="line">tar zcfh <span class="variable">$bak_dir</span>/web_code_<span class="variable">$&#123;date_info&#125;</span>.tar.gz <span class="variable">$bak_web_code</span></span><br><span class="line">tar zcfh <span class="variable">$bak_dir</span>/web_log_<span class="variable">$&#123;date_info&#125;</span>.tar.gz <span class="variable">$bak_web_log</span> &amp;&gt; /dev/null</span><br><span class="line"><span class="comment"># 删除七天前的数据</span></span><br><span class="line">find <span class="variable">$bak_dir</span> -<span class="built_in">type</span> f -name <span class="string">&quot;*.tar.gz&quot;</span> -mtime +7 -delete</span><br><span class="line"><span class="comment"># 数据校验</span></span><br><span class="line">find <span class="variable">$bak_dir</span> -<span class="built_in">type</span> f -name <span class="string">&quot;*.tar.gz&quot;</span> -mmin -200 | xargs md5sum &gt; <span class="variable">$bak_dir</span>/check.pw</span><br><span class="line"><span class="comment"># rsync 备份</span></span><br><span class="line">rsync -az <span class="variable">$bak_dir</span> linus@172.16.1.41::backup</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 邮件配置</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 编辑配置文件 /etc/maul.rc</span></span><br><span class="line"><span class="built_in">set</span> from=714616622@qq.com <span class="comment"># 指定要连接访问邮箱服务</span></span><br><span class="line"><span class="built_in">set</span> smtp=smtp.qq.com     <span class="comment"># 邮件发送邮件服务器域名</span></span><br><span class="line"><span class="built_in">set</span> smtp-auth-user=714616622@qq.com <span class="comment"># 邮箱账号信息</span></span><br><span class="line"><span class="built_in">set</span> smtp-auth-password=abftwbzzphewbeah <span class="comment"># 邮箱密码信息</span></span><br><span class="line"><span class="built_in">set</span> smtp-auth=login <span class="comment"># 需要进行远程连接登录</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 重启服务</span></span><br><span class="line">systemctl restart postfix.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 测试邮件功能</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;xxx&quot;</span> | mail -s <span class="string">&quot;标题&quot;</span> lbrunnerboy@gmail.com</span><br><span class="line">mail -s <span class="string">&quot;标题&quot;</span> lbrunnerboy@gmail.com &lt; /etc/mailcontent</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拓展</span></span><br><span class="line">mailq <span class="comment"># 查看邮件发送队列</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 拓展：如何获取ip地址</span></span><br><span class="line"><span class="comment"># 1. 先在 /etc/hosts 中配置好ip映射信息</span></span><br><span class="line"><span class="comment"># 2. 使用 hostname -i 即可获取到ip地址</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="十四-实时同步"><a href="#十四-实时同步" class="headerlink" title="十四. 实时同步"></a>十四. 实时同步</h3><p><strong>目的</strong></p>
+<p>确保指定备份目录中数据产生变化时及时进行传输备份</p>
+<p><strong>实时同步应用</strong></p>
+<p>用户上传的数据信息，建议进行无差异实时同步(用户自己删除数据属于主观行为，企业服务器无特殊需求时无需备份用户数据)</p>
+<p><strong>如何监控数据变化</strong></p>
+<ol>
+<li><p>工具：inotify-tools</p>
+</li>
+<li><p>目的：监控目录数据变化</p>
+</li>
+<li><p>部署：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 安装在客户端</span></span><br><span class="line">yum install -y inotify-tools</span><br><span class="line"><span class="comment"># 2. 利用命令监控数据变化</span></span><br><span class="line">inotifywait <span class="comment"># 监控目录中数据变化</span></span><br><span class="line">inotifywatch <span class="comment"># 统计目录中数据变化的数量</span></span><br><span class="line"><span class="comment"># 3. 语法</span></span><br><span class="line">inotifywait [OPTIONS] 目录</span><br><span class="line"><span class="comment"># 4. 常见参数</span></span><br><span class="line"><span class="comment"># @&lt;file&gt;     → 等价于 exclude-from=xxx，排除操作(多个)</span></span><br><span class="line"><span class="comment"># --exclude   → 排除某个目录或文件</span></span><br><span class="line"><span class="comment"># --excludei  → 排除某个目录或文件(文件或目录名不区分大小写)</span></span><br><span class="line"><span class="comment"># -m          → 持续监控，无该参数时只监控到一次事件就会退出</span></span><br><span class="line"><span class="comment"># -r          → 递归监控，即监控指定目录的同时监控各级子目录及其文件</span></span><br><span class="line"><span class="comment"># -q          → 只显示事件变化信息(不显示提示等无关紧要的信息)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># -qq         → 什么都不输出</span></span><br><span class="line"><span class="comment"># --format     → 设置监控信息输出的格式(-format &quot;%e %f %w %T&quot; → 分别代表事件、文件、目录、变化时间)</span></span><br><span class="line"><span class="comment"># --timefmt    → 设置时间格式</span></span><br><span class="line"><span class="comment"># -c          → 使用 csv 格式(标准列表信息输出格式)，使用逗号分隔</span></span><br><span class="line"><span class="comment"># -t          → 监控数据的超时时间(即只监控指定的时间，之后会停止监控)</span></span><br><span class="line"><span class="comment"># -e          → 指定监控的事件(create、delete、modify、move)，监控创建、修改、删除、移动、重命名</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 事件</span></span><br><span class="line">access <span class="comment"># 文件或目录内容被读取时</span></span><br><span class="line">modify <span class="comment"># 文件或目录内容被写入时</span></span><br><span class="line">attrib <span class="comment"># 文件或目录属性被改变时</span></span><br><span class="line">close_write <span class="comment"># 文件或目录内容被关闭时(文件被改变了)</span></span><br><span class="line">close_nowrite <span class="comment"># 文件或目录内容关闭时(文件未改变)</span></span><br><span class="line">close <span class="comment"># 文件或目录内容被关闭</span></span><br><span class="line">open <span class="comment"># 文件或目录内容被打开</span></span><br><span class="line">moved_to <span class="comment"># 文件或目录从其他目录移入到监控目录</span></span><br><span class="line">moved_from <span class="comment"># 文件或目录从监控目录移出</span></span><br><span class="line">move <span class="comment"># 文件或目录移动</span></span><br><span class="line">create <span class="comment"># 创建文件或目录</span></span><br><span class="line">delete <span class="comment"># 删除文件或目录</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 监控目录数据信息变化：inotifywait -mrq --format &quot;%w%f&quot; -e &quot;modify,close_write,moved_to,moved_from,create,delete&quot; /backup</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p><strong>如何进行数据传输</strong></p>
+<ol>
+<li><p>利用脚本文件实现同步数据</p>
+<figure class="highlight plain"><figcaption><span>sh</span></figcaption><table><tr><td class="code"><pre><span class="line"># 拓展：</span><br><span class="line"># \   → 可以将长的命令换行显示</span><br><span class="line"># while read 变量 → 实时读取输出信息的每一行</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 变量</span></span><br><span class="line"><span class="built_in">export</span> RSYNC_PASSWORD=linus</span><br><span class="line"></span><br><span class="line">inotifywait -mrq --format <span class="string">&quot;%w%f&quot;</span> -e <span class="string">&quot;modify,close_write,moved_to,moved_from,create,delete&quot;</span> /backup\</span><br><span class="line"><span class="keyword">while</span> <span class="built_in">read</span> inotify_data</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	rsync -az --delete /backup/ linus@172.16.1.41::backup</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 如何使脚本在后台运行(前台运行时断开连接即停止)</span></span><br><span class="line">nohup sh xxx.sh &amp;</span><br><span class="line"><span class="comment"># 对于二进制或者编译安装的软件，如何管理</span></span><br><span class="line"><span class="comment"># 1. kill pid # 停止服务进程</span></span><br><span class="line"><span class="comment"># 2. kill -9 pid # 强制停止服务进程</span></span><br><span class="line"><span class="comment"># 3. killall processname  (yum install -y psmisc)(问题：只能识别进程名空格分割的前面的部分)</span></span><br><span class="line"><span class="comment"># 4. pkill -f processname (可以识别进程名空格分割的后面的部分)</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>利用软件工具实现同步数据(sersync)</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># https://github.com/wsgzao/sersync</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1.下载 sersync 软件</span></span><br><span class="line">wget https://github.com/wsgzao/sersync/archive/master.zip</span><br><span class="line"><span class="comment"># 2. 解压并移动</span></span><br><span class="line">unzip master.zip</span><br><span class="line"><span class="built_in">cd</span> sersync-master/</span><br><span class="line">tar xf sersync2.5.4_64bit_binary_stable_final.tar.gz</span><br><span class="line">mv GNU-Linux-x86/ /usr/<span class="built_in">local</span>/sersync/</span><br><span class="line"><span class="comment"># 3. 修改配置文件</span></span><br><span class="line">vim /usr/<span class="built_in">local</span>/sersync/confxml.xml</span><br><span class="line">&lt;localpath watch=<span class="string">&quot;/opt/tongbu&quot;</span>&gt;</span><br><span class="line">	&lt;remote ip=<span class="string">&quot;127.0.0.1&quot;</span> name=<span class="string">&quot;tongbu1&quot;</span>/&gt;</span><br><span class="line">	&lt;!--&lt;remote ip=<span class="string">&quot;192.168.8.39&quot;</span> name=<span class="string">&quot;tongbu&quot;</span>/&gt;--&gt;</span><br><span class="line">	&lt;!--&lt;remote ip=<span class="string">&quot;192.168.8.40&quot;</span> name=<span class="string">&quot;tongbu&quot;</span>/&gt;--&gt;</span><br><span class="line">&lt;/localpath&gt;</span><br><span class="line">&lt;rsync&gt;</span><br><span class="line">	&lt;commonParams params=<span class="string">&quot;-artuz&quot;</span>/&gt;</span><br><span class="line">	&lt;auth start=<span class="string">&quot;false&quot;</span> users=<span class="string">&quot;root&quot;</span> passwordfile=<span class="string">&quot;/etc/rsync.pas&quot;</span>/&gt;</span><br><span class="line">	&lt;userDefinedPort start=<span class="string">&quot;false&quot;</span> port=<span class="string">&quot;874&quot;</span>/&gt;&lt;!-- port=874 --&gt;</span><br><span class="line">	&lt;timeout start=<span class="string">&quot;false&quot;</span> time=<span class="string">&quot;100&quot;</span>/&gt;&lt;!-- timeout=100 --&gt;</span><br><span class="line">	&lt;ssh start=<span class="string">&quot;false&quot;</span>/&gt;</span><br><span class="line">&lt;/rsync&gt;</span><br><span class="line"><span class="comment"># 4. 启动服务程序</span></span><br><span class="line">vim /etc/profile</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="string">&quot;/usr/local/sersync/:<span class="variable">$PATH</span>&quot;</span></span><br><span class="line">sersync2 -dro /usr/<span class="built_in">local</span>/sersync/confxml.xml</span><br><span class="line"><span class="comment"># sersync2 常见参数说明</span></span><br><span class="line">/usr/<span class="built_in">local</span>/sersync/sersync2 -h</span><br><span class="line"><span class="comment"># 参数-d:启用守护进程模式</span></span><br><span class="line"><span class="comment"># 参数-r:在监控前，将监控目录与远程主机用rsync命令推送一遍</span></span><br><span class="line"><span class="comment"># 参数-o:指定配置文件，默认使用confxml.xml文件</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>配置文件</p>
+<p><img src="https://zeuslb.github.io/img/sersync%E9%85%8D%E7%BD%AE%E5%8F%82%E8%80%83%E5%9B%BE%E7%A4%BA.png" alt="sersync配置参考图示"></p>
+</li>
+<li><p>进程</p>
+<ul>
+<li>普通进程：执行完相应的任务即消失</li>
+<li>守护进程：一直存在与进程中</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>lsyncd软件 (拓展)</p>
+</li>
+</ol>
+]]></content>
+  </entry>
 </search>
