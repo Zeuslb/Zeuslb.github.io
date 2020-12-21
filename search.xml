@@ -960,7 +960,7 @@
       </categories>
   </entry>
   <entry>
-    <title>nginx 部署与实践(二)</title>
+    <title>nginx 部署与实践(三)</title>
     <url>/2020/12/17/nginx%20%E9%83%A8%E7%BD%B2%E4%B8%8E%E5%AE%9E%E8%B7%B5(%E4%B8%89)/</url>
     <content><![CDATA[<h3 id="三-实践01：一个-nginx-服务器上部署多个网站"><a href="#三-实践01：一个-nginx-服务器上部署多个网站" class="headerlink" title="三. 实践01：一个 nginx 服务器上部署多个网站"></a>三. 实践01：一个 nginx 服务器上部署多个网站</h3><p><strong>基本环境</strong></p>
 <p>CentOS 7.6.1810，服务器 ip 为 10.0.0.7 。</p>
