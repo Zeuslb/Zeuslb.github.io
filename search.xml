@@ -1309,7 +1309,7 @@
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">upstream web &#123;</span><br><span class="line">	server 10.0.0.7:80 weight=4; # 5次有4次分配到该服务器(注意是按照比例，不是优先级)</span><br><span class="line">	server 10.0.0.8:80 weight=1; # 分配比为 1/5</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><strong>避免会话中断算法 ip_hash</strong></p>
-<p><img src="https://zeuslb.github.io/img/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1ip_hash" alt="nginx负载均衡ip_hash"></p>
+<p><img src="https://zeuslb.github.io/img/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1ip_hash.jpg" alt="nginx负载均衡ip_hash"></p>
 <p>每个请求按客户端IP的hash结果分配，当新的请求到达时，先将其客户端IP通过哈希算法哈希出一个值，在随后的客户端请求中，客户IP的哈希值只要相同，就会被分配至同一台服务器，该调度算法可以解决动态网页的session共享问题，但有时会导致请求分配不均，即无法保证1：1的负载均衡。</p>
 <p>可以避免会话中断(用户需要反复登录)，但会出现负载分配不均的问题。</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">upstream web &#123;</span><br><span class="line">	ip_hash;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
