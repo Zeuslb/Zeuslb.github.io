@@ -1386,4 +1386,17 @@
         <category>Linux</category>
       </categories>
   </entry>
+  <entry>
+    <title></title>
+    <url>/2020/12/25/%E4%B8%AD%E5%B0%8F%E5%9E%8B%E6%9E%B6%E6%9E%84%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5%E6%96%87%E6%A1%A3/</url>
+    <content><![CDATA[<h3 id="一-架构与需求"><a href="#一-架构与需求" class="headerlink" title="一. 架构与需求"></a>一. 架构与需求</h3><p><strong>架构图</strong></p>
+<p><img src="https://zeuslb.github.io/img/%E4%B8%AD%E5%B0%8F%E5%9E%8B%E4%BC%81%E4%B8%9A%E5%AE%9E%E8%B7%B5%E6%9E%B6%E6%9E%84%E8%A7%84%E5%88%92%E5%9B%BE.svg" alt="中小型企业实践架构规划图"></p>
+<p><strong>需求</strong></p>
+<ol>
+<li>基础功能：搭建 wordpress 网站。</li>
+<li>架构：LNMP 架构</li>
+<li></li>
+</ol>
+]]></content>
+  </entry>
 </search>
